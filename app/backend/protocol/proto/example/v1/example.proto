@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package cardhub.example.v1;
+
+option go_package = "cardhub/backend/protocol/gen/example/v1;examplev1";
+
+// A deliberately small demonstration contract. Services own their proto packages.
+service ExampleService {
+  rpc CreateExample(CreateExampleRequest) returns (CreateExampleResponse);
+  rpc GetExample(GetExampleRequest) returns (GetExampleResponse);
+}
+
+message CreateExampleRequest {
+  string name = 1;
+}
+
+message GetExampleRequest {
+  string id = 1;
+}
+
+message CreateExampleResponse {
+  string id = 1;
+  string name = 2;
+}
+
+message GetExampleResponse {
+  string id = 1;
+  string name = 2;
+}
