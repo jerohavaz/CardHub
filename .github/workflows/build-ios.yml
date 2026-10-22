@@ -1,0 +1,85 @@
+
+name: Build iOS IPA
+
+on:
+  workflow_dispatch:
+
+jobs:
+  ios:
+    runs-on: macos-15
+
+    defaults:
+      run:
+        working-directory: app/frontend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Make Gradle executable
+        run: chmod +x gradlew
+
+      - name: Verify build environment
+        run: |
+          pwd
+          xcodebuild -version
+          java -version
+          ./gradlew --version
+
+      - name: Inspect Xcode project
+        run: |
+          xcodebuild -list \
+            -project iosApp/iosApp.xcodeproj
+
+      - name: Build unsigned iOS application
+        run: |
+          xcodebuild build \
+            -project iosApp/iosApp.xcodeproj \
+            -scheme iosApp \
+            -configuration Debug \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath "$PWD/build/ios" \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Package unsigned IPA
+        run: |
+          set -euo pipefail
+
+          APP=$(find build/ios/Build/Products/Debug-iphoneos \
+            -maxdepth 1 \
+            -name "*.app" \
+            -type d \
+            -print \
+            -quit)
+
+          if [ -z "$APP" ]; then
+            echo "ERROR: No iOS app found"
+            exit 1
+          fi
+
+          mkdir -p ipa/Payload
+          cp -R "$APP" ipa/Payload/
+
+          cd ipa
+          zip -qry ../CardHub-unsigned.ipa Payload
+          cd ..
+
+          unzip -tq CardHub-unsigned.ipa
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: CardHub-iOS
+          path: app/frontend/CardHub-unsigned.ipa
+          if-no-files-found: error
+          retention-days: 7
