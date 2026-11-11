@@ -1,0 +1,38 @@
+\section{Technologieevaluation und Auswahl}
+
+Die Auswahl richtet sich nach Android- und iOS-Unterstützung, Kamera- und ML-Anbindung, Datenkonsistenz und Aufwand im Kurs. Festgelegt sind Kotlin mit Compose Multiplatform, Go-Dienste, gRPC, PostgreSQL und Docker Compose. Für die Kartenerkennung sind PyTorch und ONNX vorgesehen. Die Evaluation begründet diese Auswahl gegenüber den betrachteten Alternativen.
+
+\subsection{Mobile Anwendung}
+\begin{table}[H]
+\centering
+\small
+\begin{tabularx}{\linewidth}{@{}>{\hsize=0.75\hsize\linewidth=\hsize\raggedright\arraybackslash}X >{\hsize=1.17\hsize\linewidth=\hsize\raggedright\arraybackslash}X >{\hsize=1.08\hsize\linewidth=\hsize\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Alternative} & \textbf{Vorteil} & \textbf{Nachteil im Projekt} \\
+\midrule
+Native Oberflächen & Direkter Zugriff auf Plattformfunktionen und jeweilige UI-Werkzeuge. & Oberflächen für Android und iOS müssen getrennt umgesetzt werden. \\
+Flutter & Gemeinsame Oberfläche und Anwendungslogik für beide Plattformen. & Dart kommt als weitere Sprache hinzu. Kamera und ML benötigen Plattformanbindung. \\
+Kotlin und Compose Multiplatform & Gemeinsame Logik und Oberfläche; Kotlin passt zum bisherigen Projektvorschlag. & Kamera, Modell und sichere Ablage brauchen teilweise plattformspezifischen Code. \\
+\bottomrule
+\end{tabularx}
+\caption{Projektbezogener Vergleich auf Grundlage der Framework-Dokumentationen. Eigene Bewertung. \cite{kmp,flutter}}
+\end{table}
+Die App wird mit Kotlin Multiplatform und Compose Multiplatform umgesetzt. Damit lassen sich Anwendungslogik und große Teile der Oberfläche für Android und iOS teilen. Die gemeinsame UI verwendet auf iOS nicht automatisch native SwiftUI-Bedienelemente. Kamera, Modell und sichere Ablage werden über plattformspezifische Anbindungen eingebunden und auf beiden Plattformen geprüft. Flutter bleibt eine mögliche Alternative; die gemeinsame Kotlin-Oberfläche ist für CardHub verbindlich gewählt. \cite{kmp}
+
+\subsection{Backend, Daten und Bereitstellung}
+\begin{table}[H]
+\centering
+\small
+\begin{tabularx}{\linewidth}{@{}>{\hsize=0.63\hsize\linewidth=\hsize\raggedright\arraybackslash}X >{\hsize=0.8699999999999999\hsize\linewidth=\hsize\raggedright\arraybackslash}X >{\hsize=1.5\hsize\linewidth=\hsize\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Bereich} & \textbf{Auswahl / Alternative} & \textbf{Begründung für CardHub} \\
+\midrule
+Backend & Go-Dienste / Monolith / Supabase & Ein Monolith wäre einfacher zu betreiben. Supabase bündelt Standardfunktionen. Festgelegt sind eigene Go-Dienste mit drei Fachgrenzen; die Aufteilung trennt Konten, Katalog und Bestände. \\
+Kommunikation & REST/JSON außen; gRPC innen / durchgehend REST & JSON hält den mobilen Zugriff einfach. Protocol Buffers beschreiben interne Verträge und ermöglichen generierte Schnittstellen. \\
+Datenbank & PostgreSQL / MongoDB & Bestände, Konten und Angebote sind relational. SQL-Regeln und Transaktionen passen zu Mengen und gemeinsamen Bestandsänderungen. \\
+Kartendaten & TCGdex / Pokémon TCG API & TCGdex bietet deutsche Kartendaten und Cardmarket-Richtwerte. Verfügbarkeit und Zuordnung werden geprüft. Die ältere Pokémon TCG API ist als veraltet gekennzeichnet. \\
+Bilder und Betrieb & SeaweedFS; Compose / Dateisystem; manueller Start & SeaweedFS ist für Profilbilder im Ausbau vorgesehen. Seine S3-Schnittstelle trennt die Dateiablage vom Dienst. Compose beschreibt Dienste, Netzwerke und Volumes für einen gemeinsamen Start. \\
+\bottomrule
+\end{tabularx}
+\caption{Technologieauswahl und Begründung. Eigene Bewertung auf Grundlage der offiziellen Dokumentationen. \cite{grpc,postgres,tcgdex,preise,alteapi,seaweed,compose}}
+\end{table}

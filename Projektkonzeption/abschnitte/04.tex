@@ -1,0 +1,24 @@
+\section{Systemarchitektur und Verantwortlichkeiten}
+
+CardHub besteht aus einer mobilen Anwendung, einem API-Gateway und drei Backend-Diensten. Die vollständige Zielarchitektur ist in Anhang A dargestellt. Sie umfasst auch spätere Funktionen wie Freunde, Profile und Tausch.
+
+Die mobile App stellt die Oberfläche bereit und verwaltet den Anmeldestatus. Die Kamera liefert das Bild für die lokale Kartenerkennung. Das KI-Modell läuft direkt auf dem Smartphone und gibt mögliche Treffer zurück. Der Nutzer bestätigt die passende Karte oder sucht sie manuell. Das Modell wird außerhalb der App trainiert. Modell und Kartenzuordnung werden gemeinsam versioniert und in der App bereitgestellt.
+
+Die App sendet Backend-Anfragen ausschließlich an das API-Gateway. Es prüft das Zugangstoken, begrenzt die Anzahl der Anfragen und leitet sie an den zuständigen Dienst weiter. Die Go-Dienste kommunizieren intern über gRPC.
+
+Der Identitätsdienst verwaltet Konten, Anmeldung und später Profile sowie Freundschaften. Der Katalogdienst stellt Karten, Sets, Suche und Preise bereit. Er gleicht Karten- und Marktdaten mit externen Quellen ab. Der Bestandsdienst verwaltet Sammlungen und Mengen. Für Kartendaten fragt er den Katalogdienst ab. Später verarbeitet er auch Tauschangebote und Gegenangebote.
+
+Jeder Dienst verwaltet eine eigene logische Datenbank innerhalb einer PostgreSQL-Instanz. Die App greift nicht direkt auf die Datenbanken zu. Der Identitätsdienst nutzt später einen Objektspeicher für Profilbilder. Scanbilder werden nur vorübergehend im Arbeitsspeicher verarbeitet. Sie werden weder dauerhaft gespeichert noch an das Backend übertragen.
+
+\section{Systemarchitektur und Verantwortlichkeiten}
+
+CardHub besteht aus einer mobilen Anwendung, einem API-Gateway und drei Backend-Diensten. Die vollständige Zielarchitektur ist in Anhang A dargestellt. Sie umfasst auch spätere Funktionen wie Freunde, Profile und Tausch.
+
+Die mobile App stellt die Oberfläche bereit und verwaltet den Anmeldestatus. Die Kamera liefert das Bild für die lokale Kartenerkennung. Das KI-Modell läuft direkt auf dem Smartphone und gibt mögliche Treffer zurück. Der Nutzer bestätigt die passende Karte oder sucht sie manuell. Das Modell wird außerhalb der App trainiert. Modell und Kartenzuordnung werden gemeinsam versioniert und in der App bereitgestellt.
+
+Die App sendet Backend-Anfragen ausschließlich an das API-Gateway. Es prüft das Zugangstoken, begrenzt die Anzahl der Anfragen und leitet sie an den zuständigen Dienst weiter. Die Go-Dienste kommunizieren intern über gRPC.
+
+Der Identitätsdienst verwaltet Konten, Anmeldung und später Profile sowie Freundschaften. Der Katalogdienst stellt Karten, Sets, Suche und Preise bereit. Er gleicht Karten- und Marktdaten mit externen Quellen ab. Der Bestandsdienst verwaltet Sammlungen und Mengen. Für Kartendaten fragt er den Katalogdienst ab. Später verarbeitet er auch Tauschangebote und Gegenangebote.
+
+Jeder Dienst verwaltet eine eigene logische Datenbank innerhalb einer PostgreSQL-Instanz. Die App greift nicht direkt auf die Datenbanken zu. Der Identitätsdienst nutzt später einen Objektspeicher für Profilbilder. Scanbilder werden nur vorübergehend im Arbeitsspeicher verarbeitet. Sie werden weder dauerhaft gespeichert noch an das Backend übertragen.
+

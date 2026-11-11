@@ -1,0 +1,32 @@
+\section{Kartenerkennung und Datenhaltung}
+
+\subsection{Hybride Kartenerkennung und mobile Ausführung}
+Die Kartenerkennung verbindet Bildvergleich und Texterkennung. OpenCV erkennt die Kartenkontur und richtet das Bild aus. DINOv2-small erzeugt einen Merkmalsvektor des Bildes. Dieser wird mit gespeicherten Referenzvektoren verglichen. Eine ergänzende Texterkennung liest Kartenname und Sammlernummer. Ein Ranking verbindet Bildtreffer und deutsche TCGdex-Metadaten. So können auch Karten ohne Referenzbild über Text in die Vorschlagsliste gelangen. \cite{dinov2}
+
+Python und PyTorch bilden die Trainingsgrundlage. Der Code unterstützt die Anpassung des vortrainierten DINOv2-Modells durch kontrastives Fine-Tuning. Als Trainingsquelle sind Referenzbilder oder gelabelte Fotos vorgesehen. Validierungs- und Testfotos werden nach Karten-ID getrennt. Dieser Ansatz passt zum Bildvergleich und nutzt ein vorhandenes Modell. Reine OCR und reine Bildsuche werden als Vergleichsvarianten untersucht.
+
+Der Export erzeugt ein ONNX-Modell mit Opset 18. Zum versionierten Paket gehören Referenzvektoren, Kartenkatalog, Ranking-Gewichte und Angaben zur Bildvorbereitung. Der Python-Code prüft Modell und Export auf übereinstimmende Ausgaben. Für die mobile Modellausführung ist ONNX Runtime vorgesehen. Die Anbindung an die Kotlin-App und der Vergleich auf Android und iOS sind noch umzusetzen. \cite{onnxmobile}
+
+Im Python-Prototyp wird RapidOCR verwendet. Das OCR-Werkzeug für die mobile App bleibt offen. Die Oberfläche zeigt bis zu fünf Kandidaten zur Bestätigung. Ranking-Werte sind keine garantierten Wahrscheinlichkeiten. Bei unpassenden Treffern bleibt die manuelle Suche verfügbar. Zielumfang ist der gesamte deutsche TCGdex-Katalog.
+
+\subsection{Datenmodell und Preisangaben}
+\begin{table}[H]
+\centering
+\small
+\begin{tabularx}{\linewidth}{@{}>{\hsize=0.5\hsize\linewidth=\hsize\raggedright\arraybackslash}X >{\hsize=1.5\hsize\linewidth=\hsize\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Datenbereich} & \textbf{Zentrale Daten} \\
+\midrule
+Identity & Nutzer-ID, Kontodaten und erneuerbare Sitzungen; später Freundschaft und Profilbild-Metadaten. \\
+Catalog & Karten-ID, Sprache, Set, Nummer und Variante. Preisstände enthalten Quelle, Währung, Wert und Aktualisierungszeit. \\
+Inventory & Nutzer-ID, Karten-ID, Sprache, Variante und Menge. Später Angebot, Angebotspositionen und Statusänderungen. \\
+\bottomrule
+\end{tabularx}
+\caption{Fachliches Datenmodell. Eigene Darstellung.}
+\end{table}
+Die Datenbanken werden nicht durch dienstübergreifende Fremdschlüssel gekoppelt. Karten- und Nutzer-IDs sind Referenzen, die über die zuständigen Dienste geprüft werden. Für dieselbe Kombination aus Nutzer, Karte, Sprache und Variante gibt es einen zusammengefassten Bestand. Preisstände bleiben vom Besitz getrennt: Eine Preisänderung ändert keine Kartenmenge.
+
+TCGdex dokumentiert fehlende Preise und mögliche Fehlzuordnungen zwischen Varianten. Die App nennt deshalb Quelle und Datenstand. Nicht bewertbare Einträge werden gesondert gezählt. Ein Durchschnitt für einen Zeitraum ist kein vollständiger Preisverlauf. Für eigene Verlaufsgrafiken müssten über längere Zeit passende Preisstände gespeichert werden. Der geschätzte Gesamtwert ist die Summe aus Anzahl mal verfügbarem Richtwert je Eintrag. Zustand und konkrete Verkaufssituation können davon abweichen. \cite{preise,preisfaq}
+
+Die Bildanalyse soll lokal auf dem Smartphone erfolgen. Sammlungsänderungen werden im MVP nur mit Internetverbindung gespeichert. Der Server bleibt die verbindliche Quelle des Bestands. Nach einem Netzfehler bleibt die Auswahl für einen erneuten Versuch erhalten; eine Offline-Synchronisation wird nicht umgesetzt.
+

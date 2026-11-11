@@ -1,0 +1,17 @@
+\section{UI-Mockups}
+Die folgenden Ansichten werden vor der Abgabe durch die finalen Mockups ersetzt. Der Hauptablauf muss vom Start bis zum gespeicherten Sammlungseintrag visuell nachvollziehbar sein. Die manuelle Suche zeigt den alternativen Weg bei einem fehlgeschlagenen Scan.
+
+\newcommand{\mockslot}[2]{%
+\begin{minipage}[t]{0.47\linewidth}\centering
+\IfFileExists{mockups/#1}{\includegraphics[width=0.96\linewidth,height=59mm,keepaspectratio]{mockups/#1}}{\fbox{\parbox[c][57mm][c]{0.88\linewidth}{\centering\small #2\\[4mm]\texttt{\detokenize{#1}}}}}\\[2mm]
+{\small #2}
+\end{minipage}}
+\begin{figure}[H]\centering
+\mockslot{01-sammlung.png}{1. Sammlung öffnen}\hfill
+\mockslot{02-scanner.png}{2. Karte aufnehmen}\par\vspace{4mm}
+\mockslot{03-treffer.png}{3. Treffer bestätigen}\hfill
+\mockslot{04-menge.png}{4. Anzahl festlegen}\par\vspace{4mm}
+\mockslot{05-gespeichert.png}{5. Gespeicherten Eintrag ansehen}\hfill
+\mockslot{06-manuelle-suche.png}{Alternative: manuelle Suche}
+\caption{Hauptablauf und manuelle Alternative. Eigene Darstellung. Die sichtbaren Felder sind Platzhalter für die finalen Mockups.}
+\end{figure}

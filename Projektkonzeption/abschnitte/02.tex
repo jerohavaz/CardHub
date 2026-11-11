@@ -1,0 +1,42 @@
+\section{Anforderungen und Umfang des MVP}
+
+Das Minimum Viable Product deckt den Kernablauf vollständig ab: Eine angemeldete Person erfasst eine Karte, bestätigt die Zuordnung und findet sie anschließend in ihrer Sammlung wieder. Der Kursumfang umfasst Anmeldung, Katalog, Kartenerkennung, manuelle Eingabe, Sammlung und Preisübersicht. Die folgenden Anforderungen legen diesen Umfang fest.
+
+\subsection{Funktionale Anforderungen}
+\begin{table}[H]
+\centering
+\small
+\begin{tabularx}{\linewidth}{@{}>{\hsize=0.56\hsize\linewidth=\hsize\raggedright\arraybackslash}X >{\hsize=1.44\hsize\linewidth=\hsize\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Funktion} & \textbf{Umfang im MVP} \\
+\midrule
+Konto und Sitzung & Registrieren, anmelden und abmelden. Persönliche Sammlungsdaten sind nur nach Anmeldung zugänglich. \\
+Kartenkatalog & Den gesamten deutschen TCGdex-Katalog durchsuchen. Nach Name oder Nummer suchen, nach Set oder Typ filtern und Details anzeigen. \\
+Kameraerfassung & Kartenaufnahmen durch ein KI-Modell lokal auf dem Smartphone zuordnen. Ziel ist der gesamte deutsche TCGdex-Katalog. Mögliche Treffer zur Bestätigung anzeigen. Wird keine passende Karte erkannt, die manuelle Suche anbieten. \\
+Manuelle Eingabe & Eine Karte nach Name oder Nummer suchen, auswählen und mit einer Anzahl übernehmen. Die Eingabe ist direkt und nach einem fehlgeschlagenen Scan möglich. \\
+Sammlung verwalten & Eigene Karten anzeigen und filtern. Anzahl online erhöhen oder verringern und Einträge entfernen. \\
+Preise und Gesamtwert & Verfügbare Euro-Richtwerte mit Datenstand anzeigen. Aus bewertbaren Einträgen einen geschätzten Gesamtwert berechnen. \\
+\bottomrule
+\end{tabularx}
+\caption{Funktionaler Umfang des MVP. Eigene Darstellung.}
+\end{table}
+\subsection{Nichtfunktionale Anforderungen}
+\begin{table}[H]
+\centering
+\small
+\begin{tabularx}{\linewidth}{@{}>{\hsize=0.56\hsize\linewidth=\hsize\raggedright\arraybackslash}X >{\hsize=1.44\hsize\linewidth=\hsize\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Qualitätsziel} & \textbf{Prüfbares Verhalten} \\
+\midrule
+Plattformen & Den Kernablauf auf mindestens einem Android-Gerät und einem iPhone prüfen. \\
+Fehlertoleranz & Bei uneindeutiger Erkennung mehrere mögliche Treffer zur Auswahl anbieten. Der Nutzer kann falsche Vorschläge verwerfen und einen anderen Treffer wählen. Passt kein Vorschlag, ist die manuelle Suche verfügbar. \\
+Datenschutz und Zugriff & Scanbilder nur vorübergehend im Arbeitsspeicher verarbeiten. Die App speichert sie nicht als Dateien und überträgt sie nicht an das Backend. Persönliche Sammlungsdaten sind nur für den angemeldeten Nutzer zugänglich. \\
+Datenqualität & Keine negativen Mengen speichern. Fehlende Preise nicht als 0 Euro ausgeben. Änderungen erst nach Serverbestätigung als gespeichert anzeigen. \\
+Wartbarkeit und Betrieb & Komponenten und Schnittstellen trennen. Den Backend-Start mit einer dokumentierten Compose-Konfiguration reproduzieren. \\
+\bottomrule
+\end{tabularx}
+\caption{Aus den Anwendungsfällen abgeleitete Qualitätsanforderungen. Eigene Darstellung.}
+\end{table}
+\subsection{Abgrenzung und spätere Erweiterungen}
+Freundesverwaltung, fremde Sammlungen, Tausch und Gegenangebote folgen nach dem MVP. Auch Profilbilder, Chat, Wunschliste, Preisalarme und Release-Kalender sind spätere Erweiterungen. Sammlungsänderungen erfordern im MVP eine Internetverbindung. Offline-Bearbeitung mit späterer Synchronisation ist ausgeschlossen. Die Kartenerkennung umfasst als Ziel den gesamten deutschen TCGdex-Katalog. Eine Begrenzung auf einzelne Sets oder einen Pilotbestand ist nicht vorgesehen.
+

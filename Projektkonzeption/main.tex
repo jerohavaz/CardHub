@@ -1,0 +1,98 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[ngerman]{babel}
+\usepackage{lmodern,microtype}
+\usepackage[left=22mm,right=22mm,top=24mm,bottom=22mm]{geometry}
+\usepackage{graphicx,float,booktabs,tabularx,array,titlesec}
+\usepackage{xcolor}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{caption}
+\usepackage{fancyhdr}
+\usepackage[hidelinks]{hyperref}
+\usepackage{xurl}
+\input{metadaten}
+\hypersetup{pdftitle={CardHub -- Projektkonzeption},pdfauthor={CardHub-Projektteam}}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.14}
+\captionsetup{font=footnotesize,labelfont=bf,skip=5pt}
+\setlength{\textfloatsep}{9pt}
+\setlength{\intextsep}{8pt}
+\setlength{\headheight}{14pt}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small CardHub}
+\fancyhead[R]{\small Projektkonzeption}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.3pt}
+\emergencystretch=2em
+\titleformat{\section}{\normalfont\fontsize{15}{17.5}\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalfont\fontsize{11.9}{13.3}\bfseries}{\thesubsection}{0.5em}{}
+\titlespacing*{\section}{0pt}{0pt}{9pt}
+\titlespacing*{\subsection}{0pt}{7pt}{5pt}
+\newif\ifmockups
+\mockupstrue % Auf \mockupsfalse setzen, um den Anhang auszublenden.
+\begin{document}
+\begin{titlepage}
+Technische Hochschule Mittelhessen\\
+Fachbereich MNI\\[8mm]
+Mobile Software Engineering\\
+Wintersemester 2026/27
+\vspace{29mm}
+\begin{center}
+{\Huge\bfseries CardHub\par}
+\vspace{6mm}
+{\LARGE Projektkonzeption\par}
+\vspace{8mm}
+{\large Mobile Anwendung zur Verwaltung\\von Pokémon-Sammelkarten\par}
+\end{center}
+\vfill
+\textbf{Projektteam}\\[3mm]
+\begin{tabular}{@{}ll@{}}
+Louis Bieber & Ergänzen ????\\
+Jerome-Pascal Habanz & 5321331\\
+Rico Marco Libesch & 5324095\\
+Mert Ali Özmeral & 5319592
+\end{tabular}
+\vspace{10mm}
+
+\textbf{Dozent}\\Daniel Vogel
+\vspace{8mm}
+
+Stand: \KonzeptStand
+\end{titlepage}
+% Optional: Inhaltsverzeichnis als zusätzliche Vorseite.
+% \tableofcontents\clearpage
+\setcounter{page}{1}
+\fontsize{10.8}{13.2}\selectfont
+\input{abschnitte/01}
+\clearpage
+\input{abschnitte/02}
+\clearpage
+\input{abschnitte/03}
+\clearpage
+\input{abschnitte/04}
+\clearpage
+\input{abschnitte/05}
+\clearpage
+\input{abschnitte/06}
+\clearpage
+\input{abschnitte/07}
+
+\clearpage
+\addcontentsline{toc}{section}{Literatur}
+\begingroup
+\small
+\bibliographystyle{unsrt}
+\bibliography{quellen}
+\endgroup
+\clearpage
+\appendix
+\input{anhaenge/architektur}
+\ifmockups
+\clearpage
+%\input{mockups/anhang}
+\fi
+\end{document}
