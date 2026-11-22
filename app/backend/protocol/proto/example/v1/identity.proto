@@ -5,11 +5,17 @@ package cardhub.identity.v1;
 option go_package = "cardhub/backend/protocol/gen/identity/v1;identityv1";
 
 service IdentityService {
+  // Authentication
   rpc Register(RegisterRequest) returns (RegisterResponse);
   rpc Login(LoginRequest) returns (LoginResponse);
+  rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse);
+  rpc Logout(LogoutRequest) returns (LogoutResponse);
+
+  // Users
   rpc GetMe(GetMeRequest) returns (GetMeResponse);
 }
 
+// Registration
 message RegisterRequest {
   string email    = 1;
   string username = 2;
@@ -20,6 +26,7 @@ message RegisterResponse {
   string user_id = 1;
 }
 
+// Login
 message LoginRequest {
   string email    = 1;
   string password = 2;
@@ -30,6 +37,24 @@ message LoginResponse {
   string refresh_token = 2;
 }
 
+// Refresh session
+message RefreshTokenRequest {
+  string refresh_token = 1;
+}
+
+message RefreshTokenResponse {
+  string access_token  = 1;
+  string refresh_token = 2;
+}
+
+// Logout
+message LogoutRequest {
+  string refresh_token = 1;
+}
+
+message LogoutResponse {}
+
+// Current user
 message GetMeRequest {}
 
 message GetMeResponse {
