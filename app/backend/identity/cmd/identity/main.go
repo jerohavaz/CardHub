@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"cardhub/backend/foundation/config"
 	"cardhub/backend/foundation/grpcserver"
@@ -46,12 +47,29 @@ func main() {
 	}
 	defer pool.Close()
 
-	signer, err := token.NewSigner(keyPath)
+	accessTTL, err := config.DurationEnv(
+		"JWT_ACCESS_TTL",
+		15*time.Minute,
+	)
 	if err != nil {
-		logger.Fatal("signer", zap.Error(err))
+		logger.Fatal("invalid JWT access TTL", zap.Error(err))
 	}
 
-	svc := service.New(repository.NewUserRepository(pool), repository.NewSessionRepository(pool), signer)
+	signer, err := token.NewSigner(
+		keyPath,
+		token.Config{
+			Issuer:    config.Env("JWT_ISSUER", "cardhub-identity"),
+			Audience:  config.Env("JWT_AUDIENCE", "cardhub-api"),
+			AccessTTL: accessTTL,
+		},
+	)
+
+	refreshTTL, err := config.DurationEnv("JWT_REFRESH_TTL", 720*24*time.Minute)
+	if err != nil {
+		logger.Fatal("invalid JWT refresh TTL", zap.Error(err))
+	}
+
+	svc := service.New(repository.NewUserRepository(pool), repository.NewSessionRepository(pool), signer, refreshTTL)
 	server := grpcserver.New(logger)
 	identityv1.RegisterIdentityServiceServer(server, transport.New(svc, logger))
 	if err := grpcserver.Run(ctx, config.Env("GRPC_ADDR", ":9001"), server, logger); err != nil {

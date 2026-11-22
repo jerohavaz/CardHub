@@ -13,67 +13,240 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+const (
+	testIssuer   = "cardhub-identity"
+	testAudience = "cardhub-api"
+	testUserID   = "123e4567-e89b-12d3-a456-426614174000"
+)
+
 func TestJWTVerifier(t *testing.T) {
+	// Generate temporary Ed25519 keys.
 	pub, priv, err := ed25519.GenerateKey(rand.Reader)
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	der, err := x509.MarshalPKIXPublicKey(pub)
 	if err != nil {
 		t.Fatal(err)
 	}
-	path := filepath.Join(t.TempDir(), "public.pem")
-	if err := os.WriteFile(path, pem.EncodeToMemory(&pem.Block{Type: "PUBLIC KEY", Bytes: der}), 0600); err != nil {
+
+	keyPath := filepath.Join(t.TempDir(), "public.pem")
+	pemData := pem.EncodeToMemory(&pem.Block{
+		Type:  "PUBLIC KEY",
+		Bytes: der,
+	})
+
+	if err := os.WriteFile(keyPath, pemData, 0600); err != nil {
 		t.Fatal(err)
 	}
-	verifier, err := NewVerifier(path)
+
+	// Pass the configured issuer and audience.
+	verifier, err := NewVerifier(
+		keyPath,
+		testIssuer,
+		testAudience,
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
-	now := time.Now()
-	cases := []struct {
+
+	now := time.Now().UTC()
+
+	tests := []struct {
 		name   string
 		claims jwt.RegisteredClaims
-		method jwt.SigningMethod
 		wantOK bool
 	}{
-		{"valid", jwt.RegisteredClaims{Subject: "user-123", Issuer: issuer, Audience: jwt.ClaimStrings{audience}, IssuedAt: jwt.NewNumericDate(now), ExpiresAt: jwt.NewNumericDate(now.Add(time.Hour))}, jwt.SigningMethodEdDSA, true},
-		{"expired", jwt.RegisteredClaims{Subject: "user-123", Issuer: issuer, Audience: jwt.ClaimStrings{audience}, IssuedAt: jwt.NewNumericDate(now.Add(-2 * time.Hour)), ExpiresAt: jwt.NewNumericDate(now.Add(-time.Hour))}, jwt.SigningMethodEdDSA, false},
-		{"wrong issuer", jwt.RegisteredClaims{Subject: "user-123", Issuer: "other", Audience: jwt.ClaimStrings{audience}, ExpiresAt: jwt.NewNumericDate(now.Add(time.Hour))}, jwt.SigningMethodEdDSA, false},
-		{"wrong audience", jwt.RegisteredClaims{Subject: "user-123", Issuer: issuer, Audience: jwt.ClaimStrings{"other"}, ExpiresAt: jwt.NewNumericDate(now.Add(time.Hour))}, jwt.SigningMethodEdDSA, false},
-		{"missing subject", jwt.RegisteredClaims{Issuer: issuer, Audience: jwt.ClaimStrings{audience}, ExpiresAt: jwt.NewNumericDate(now.Add(time.Hour))}, jwt.SigningMethodEdDSA, false},
-		{"missing expiration", jwt.RegisteredClaims{Subject: "user-123", Issuer: issuer, Audience: jwt.ClaimStrings{audience}}, jwt.SigningMethodEdDSA, false},
+		{
+			name: "valid token",
+			claims: jwt.RegisteredClaims{
+				Subject:   testUserID,
+				Issuer:    testIssuer,
+				Audience:  jwt.ClaimStrings{testAudience},
+				IssuedAt:  jwt.NewNumericDate(now),
+				NotBefore: jwt.NewNumericDate(now),
+				ExpiresAt: jwt.NewNumericDate(now.Add(time.Hour)),
+			},
+			wantOK: true,
+		},
+		{
+			name: "expired token",
+			claims: jwt.RegisteredClaims{
+				Subject:   testUserID,
+				Issuer:    testIssuer,
+				Audience:  jwt.ClaimStrings{testAudience},
+				IssuedAt:  jwt.NewNumericDate(now.Add(-2 * time.Hour)),
+				ExpiresAt: jwt.NewNumericDate(now.Add(-time.Hour)),
+			},
+		},
+		{
+			name: "wrong issuer",
+			claims: jwt.RegisteredClaims{
+				Subject:   testUserID,
+				Issuer:    "other-issuer",
+				Audience:  jwt.ClaimStrings{testAudience},
+				ExpiresAt: jwt.NewNumericDate(now.Add(time.Hour)),
+			},
+		},
+		{
+			name: "wrong audience",
+			claims: jwt.RegisteredClaims{
+				Subject:   testUserID,
+				Issuer:    testIssuer,
+				Audience:  jwt.ClaimStrings{"other-audience"},
+				ExpiresAt: jwt.NewNumericDate(now.Add(time.Hour)),
+			},
+		},
+		{
+			name: "missing subject",
+			claims: jwt.RegisteredClaims{
+				Issuer:    testIssuer,
+				Audience:  jwt.ClaimStrings{testAudience},
+				ExpiresAt: jwt.NewNumericDate(now.Add(time.Hour)),
+			},
+		},
+		{
+			name: "missing expiration",
+			claims: jwt.RegisteredClaims{
+				Subject:  testUserID,
+				Issuer:   testIssuer,
+				Audience: jwt.ClaimStrings{testAudience},
+			},
+		},
+		{
+			name: "not valid yet",
+			claims: jwt.RegisteredClaims{
+				Subject:   testUserID,
+				Issuer:    testIssuer,
+				Audience:  jwt.ClaimStrings{testAudience},
+				NotBefore: jwt.NewNumericDate(now.Add(time.Hour)),
+				ExpiresAt: jwt.NewNumericDate(now.Add(2 * time.Hour)),
+			},
+		},
 	}
-	for _, tt := range cases {
+
+	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			signed, err := jwt.NewWithClaims(tt.method, tt.claims).SignedString(priv)
+			signed, err := jwt.NewWithClaims(
+				jwt.SigningMethodEdDSA,
+				tt.claims,
+			).SignedString(priv)
 			if err != nil {
 				t.Fatal(err)
 			}
-			sub, err := verifier.Verify(signed)
+
+			subject, err := verifier.Verify(signed)
+
 			if (err == nil) != tt.wantOK {
-				t.Fatalf("expected valid=%t got sub=%q err=%v", tt.wantOK, sub, err)
+				t.Fatalf(
+					"want valid=%t, got subject=%q, err=%v",
+					tt.wantOK,
+					subject,
+					err,
+				)
 			}
-			if tt.wantOK && sub != "user-123" {
-				t.Fatalf("subject=%q", sub)
+
+			if tt.wantOK && subject != testUserID {
+				t.Fatalf(
+					"unexpected subject: %q",
+					subject,
+				)
 			}
 		})
 	}
-	otherPub, otherPriv, err := ed25519.GenerateKey(rand.Reader)
+}
+
+func TestJWTVerifierRejectsWrongKey(t *testing.T) {
+	// Generate the trusted key.
+	pub, _, err := ed25519.GenerateKey(rand.Reader)
 	if err != nil {
 		t.Fatal(err)
 	}
-	_ = otherPub
-	signed, err := jwt.NewWithClaims(jwt.SigningMethodEdDSA, jwt.RegisteredClaims{
-		Subject: "user-123", Issuer: issuer, Audience: jwt.ClaimStrings{audience}, ExpiresAt: jwt.NewNumericDate(now.Add(time.Hour)),
-	}).SignedString(otherPriv)
+
+	der, err := x509.MarshalPKIXPublicKey(pub)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err = verifier.Verify(signed); err == nil {
-		t.Fatal("accepted wrong signing key")
+
+	keyPath := filepath.Join(t.TempDir(), "public.pem")
+	if err := os.WriteFile(
+		keyPath,
+		pem.EncodeToMemory(&pem.Block{
+			Type:  "PUBLIC KEY",
+			Bytes: der,
+		}),
+		0600,
+	); err != nil {
+		t.Fatal(err)
 	}
-	if _, err = verifier.Verify("not-a-jwt"); err == nil {
+
+	verifier, err := NewVerifier(
+		keyPath,
+		testIssuer,
+		testAudience,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Sign with an unrelated private key.
+	_, otherPrivateKey, err := ed25519.GenerateKey(rand.Reader)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	signed, err := jwt.NewWithClaims(
+		jwt.SigningMethodEdDSA,
+		jwt.RegisteredClaims{
+			Subject:   testUserID,
+			Issuer:    testIssuer,
+			Audience:  jwt.ClaimStrings{testAudience},
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour)),
+		},
+	).SignedString(otherPrivateKey)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if _, err := verifier.Verify(signed); err == nil {
+		t.Fatal("accepted token signed with wrong key")
+	}
+}
+
+func TestJWTVerifierRejectsMalformedToken(t *testing.T) {
+	pub, _, err := ed25519.GenerateKey(rand.Reader)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	der, err := x509.MarshalPKIXPublicKey(pub)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	keyPath := filepath.Join(t.TempDir(), "public.pem")
+	if err := os.WriteFile(
+		keyPath,
+		pem.EncodeToMemory(&pem.Block{
+			Type:  "PUBLIC KEY",
+			Bytes: der,
+		}),
+		0600,
+	); err != nil {
+		t.Fatal(err)
+	}
+
+	verifier, err := NewVerifier(
+		keyPath,
+		testIssuer,
+		testAudience,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if _, err := verifier.Verify("not-a-jwt"); err == nil {
 		t.Fatal("accepted malformed JWT")
 	}
 }

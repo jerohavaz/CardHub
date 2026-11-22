@@ -42,6 +42,8 @@ func main() {
 
 	verifier, err := auth.NewVerifier(
 		config.Env("JWT_PUBLIC_KEY_PATH", "/run/keys/jwt-public.pem"),
+		config.Env("JWT_ISSUER", "cardhub-identity"),
+		config.Env("JWT_AUDIENCE", "cardhub-api"),
 	)
 	if err != nil {
 		logger.Fatal("load JWT public key", zap.Error(err))

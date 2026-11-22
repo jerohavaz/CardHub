@@ -1,11 +1,31 @@
 name: cardhub
+
+# ============================================================
+# Shared Configuration
+# ============================================================
+
+x-database: &database
+  DATABASE_URL: postgres://${POSTGRES_USER:?required}:${POSTGRES_PASSWORD:?required}@postgres:5432/${POSTGRES_DB:?required}?sslmode=disable
+
+x-common: &common
+  APP_ENV: ${APP_ENV:-development}
+
+x-jwt: &jwt
+  JWT_ISSUER: ${JWT_ISSUER:-cardhub-identity}
+  JWT_AUDIENCE: ${JWT_AUDIENCE:-cardhub-api}
+
+# ============================================================
+# Infrastructure
+# ============================================================
+
 services:
+  # PostgreSQL
   postgres:
     image: postgres:18.6-alpine
     environment:
-      POSTGRES_DB: cardhub
-      POSTGRES_USER: cardhub
-      POSTGRES_PASSWORD: cardhub
+      POSTGRES_DB: ${POSTGRES_DB:?required}
+      POSTGRES_USER: ${POSTGRES_USER:?required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?required}
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U cardhub -d cardhub"]
       interval: 2s
@@ -13,14 +33,16 @@ services:
       retries: 15
     volumes:
       - postgres_data:/var/lib/postgresql
+    restart: unless-stopped
 
+  # Database migrations
   migrate:
     build:
       context: .
       dockerfile: migrations/Dockerfile
     environment:
+      <<: *database
       GOOSE_DRIVER: postgres
-      GOOSE_DBSTRING: postgres://cardhub:cardhub@postgres:5432/cardhub?sslmode=disable
     depends_on:
       postgres:
         condition: service_healthy
@@ -28,15 +50,16 @@ services:
     entrypoint: ["/bin/sh", "-ec"]
     command:
       - |
+        export GOOSE_DBSTRING="$$DATABASE_URL"
+
         for service in example identity; do
           echo "Migrating $${service}..."
-
           export GOOSE_MIGRATION_DIR="/migrations/$${service}"
           export GOOSE_TABLE="goose_$${service}_version"
-
           goose up
         done
-  
+
+  # JWT signing key initialization
   jwt-init:
     build:
       context: .
@@ -46,28 +69,34 @@ services:
       - jwt_public:/keys/public
     restart: "no"
 
+  # ==========================================================
+  # Backend Services
+  # ==========================================================
+
+  # Example service
   service-example:
     build:
       context: .
       dockerfile: service-example/Dockerfile
     environment:
-      APP_ENV: production
+      <<: [*common, *database]
       GRPC_ADDR: :9000
-      DATABASE_URL: postgres://cardhub:cardhub@postgres:5432/cardhub?sslmode=disable
     depends_on:
       migrate:
         condition: service_completed_successfully
     restart: unless-stopped
 
+  # Identity and authentication service
   identity:
     build:
       context: .
       dockerfile: identity/Dockerfile
     environment:
-      APP_ENV: production
+      <<: [*common, *database, *jwt]
       GRPC_ADDR: :9001
-      DATABASE_URL: postgres://cardhub:cardhub@postgres:5432/cardhub?sslmode=disable
       JWT_KEY_PATH: /run/keys/jwt-private.pem
+      JWT_ACCESS_TTL: ${JWT_ACCESS_TTL:-15m}
+      JWT_REFRESH_TTL: ${JWT_REFRESH_TTL:-720h}
     volumes:
       - jwt_private:/run/keys:ro
     depends_on:
@@ -77,12 +106,13 @@ services:
         condition: service_completed_successfully
     restart: unless-stopped
 
+  # Public HTTP API Gateway
   gateway:
     build:
       context: .
       dockerfile: gateway/Dockerfile
     environment:
-      APP_ENV: production
+      <<: [*common, *jwt]
       HTTP_ADDR: :8080
       EXAMPLE_GRPC_ADDR: service-example:9000
       IDENTITY_GRPC_ADDR: identity:9001
@@ -99,6 +129,10 @@ services:
     ports:
       - "127.0.0.1:8080:8080"
     restart: unless-stopped
+
+# ============================================================
+# Persistent Volumes
+# ============================================================
 
 volumes:
   postgres_data:

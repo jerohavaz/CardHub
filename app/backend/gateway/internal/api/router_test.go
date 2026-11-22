@@ -26,7 +26,15 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-const testUserID = "123e4567-e89b-12d3-a456-426614174000"
+const (
+	testUserID   = "123e4567-e89b-12d3-a456-426614174000"
+	testIssuer   = "cardhub-identity"
+	testAudience = "cardhub-api"
+)
+
+// ============================================================
+// Fake gRPC Clients
+// ============================================================
 
 type fakeClient struct {
 	notFound bool
@@ -58,8 +66,8 @@ func (c fakeClient) GetExample(
 	}, nil
 }
 
-// Embed the generated interface so we only need
-// to implement the methods used in these tests.
+// Embed the generated interface so tests only need
+// to implement the methods they exercise.
 type fakeIdentityClient struct {
 	identityv1.IdentityServiceClient
 }
@@ -76,8 +84,12 @@ func (c fakeIdentityClient) GetMe(
 	}, nil
 }
 
-// Generate a temporary signing key and a valid JWT.
-// No Docker secrets or environment variables required.
+// ============================================================
+// Test Helpers
+// ============================================================
+
+// testAuth generates a temporary Ed25519 key pair and
+// a valid JWT using explicit test configuration.
 func testAuth(t *testing.T) (*auth.Verifier, string) {
 	t.Helper()
 
@@ -96,13 +108,21 @@ func testAuth(t *testing.T) (*auth.Verifier, string) {
 		Bytes: der,
 	})
 
-	keyPath := filepath.Join(t.TempDir(), "jwt-public.pem")
+	keyPath := filepath.Join(
+		t.TempDir(),
+		"jwt-public.pem",
+	)
 
 	if err := os.WriteFile(keyPath, pemData, 0600); err != nil {
 		t.Fatal(err)
 	}
 
-	verifier, err := auth.NewVerifier(keyPath)
+	// Configure JWT verification explicitly.
+	verifier, err := auth.NewVerifier(
+		keyPath,
+		testIssuer,
+		testAudience,
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -111,14 +131,16 @@ func testAuth(t *testing.T) (*auth.Verifier, string) {
 
 	claims := jwt.RegisteredClaims{
 		Subject:   testUserID,
-		Issuer:    "cardhub-identity",
-		Audience:  jwt.ClaimStrings{"cardhub-api"},
+		Issuer:    testIssuer,
+		Audience:  jwt.ClaimStrings{testAudience},
 		IssuedAt:  jwt.NewNumericDate(now),
 		NotBefore: jwt.NewNumericDate(now),
-		ExpiresAt: jwt.NewNumericDate(now.Add(15 * time.Minute)),
+		ExpiresAt: jwt.NewNumericDate(
+			now.Add(15 * time.Minute),
+		),
 	}
 
-	token, err := jwt.NewWithClaims(
+	signedToken, err := jwt.NewWithClaims(
 		jwt.SigningMethodEdDSA,
 		claims,
 	).SignedString(privateKey)
@@ -126,7 +148,7 @@ func testAuth(t *testing.T) (*auth.Verifier, string) {
 		t.Fatal(err)
 	}
 
-	return verifier, token
+	return verifier, signedToken
 }
 
 func testRouter(
@@ -135,7 +157,7 @@ func testRouter(
 ) (http.Handler, string) {
 	t.Helper()
 
-	verifier, token := testAuth(t)
+	verifier, accessToken := testAuth(t)
 
 	router := Router(
 		example,
@@ -144,7 +166,7 @@ func testRouter(
 		zap.NewNop(),
 	)
 
-	return router, token
+	return router, accessToken
 }
 
 func authenticatedRequest(
@@ -162,6 +184,10 @@ func authenticatedRequest(
 	req.Header.Set("Authorization", "Bearer "+token)
 	return req
 }
+
+// ============================================================
+// Gateway and OpenAPI Tests
+// ============================================================
 
 func TestGatewayEndpointsAndOpenAPI(t *testing.T) {
 	router, token := testRouter(t, fakeClient{})
@@ -239,6 +265,10 @@ func TestGatewayEndpointsAndOpenAPI(t *testing.T) {
 	}
 }
 
+// ============================================================
+// Error Handling Tests
+// ============================================================
+
 func TestGatewayMapsNotFound(t *testing.T) {
 	router, token := testRouter(t, fakeClient{
 		notFound: true,
@@ -309,6 +339,10 @@ func TestGatewayRejectsInvalidToken(t *testing.T) {
 	}
 }
 
+// ============================================================
+// Authenticated User Tests
+// ============================================================
+
 func TestGatewayGetMe(t *testing.T) {
 	router, token := testRouter(t, fakeClient{})
 
@@ -342,6 +376,9 @@ func TestGatewayGetMe(t *testing.T) {
 	}
 
 	if user.UserID != testUserID {
-		t.Fatalf("unexpected user ID: %s", user.UserID)
+		t.Fatalf(
+			"unexpected user ID: %s",
+			user.UserID,
+		)
 	}
 }

@@ -12,17 +12,27 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-const (
-	issuer    = "cardhub-identity"
-	audience  = "cardhub-api"
-	accessTTL = 15 * time.Minute
-)
+type Config struct {
+	Issuer    string
+	Audience  string
+	AccessTTL time.Duration
+}
 
 type Signer struct {
 	privateKey ed25519.PrivateKey
+	config     Config
 }
 
-func NewSigner(keyPath string) (*Signer, error) {
+func NewSigner(
+	keyPath string,
+	cfg Config,
+) (*Signer, error) {
+	if cfg.Issuer == "" ||
+		cfg.Audience == "" ||
+		cfg.AccessTTL <= 0 {
+		return nil, errors.New("invalid JWT configuration")
+	}
+
 	data, err := os.ReadFile(keyPath)
 	if err != nil {
 		return nil, fmt.Errorf("read JWT private key: %w", err)
@@ -43,7 +53,7 @@ func NewSigner(keyPath string) (*Signer, error) {
 		return nil, errors.New("expected Ed25519 private key")
 	}
 
-	return &Signer{privateKey: privateKey}, nil
+	return &Signer{privateKey: privateKey, config: cfg}, nil
 }
 
 func (s *Signer) Issue(userID string) (string, error) {
@@ -55,11 +65,11 @@ func (s *Signer) Issue(userID string) (string, error) {
 
 	claims := jwt.RegisteredClaims{
 		Subject:   userID,
-		Issuer:    issuer,
-		Audience:  jwt.ClaimStrings{audience},
+		Issuer:    s.config.Issuer,
+		Audience:  jwt.ClaimStrings{s.config.Audience},
 		IssuedAt:  jwt.NewNumericDate(now),
 		NotBefore: jwt.NewNumericDate(now),
-		ExpiresAt: jwt.NewNumericDate(now.Add(accessTTL)),
+		ExpiresAt: jwt.NewNumericDate(now.Add(s.config.AccessTTL)),
 	}
 
 	t := jwt.NewWithClaims(jwt.SigningMethodEdDSA, claims)

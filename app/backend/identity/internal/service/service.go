@@ -68,19 +68,22 @@ type AuthTokens struct {
 }
 
 type Service struct {
-	users    UserRepository
-	sessions SessionRepository
-	signer   *token.Signer
+	users      UserRepository
+	sessions   SessionRepository
+	signer     *token.Signer
+	refreshTTL time.Duration
 }
 
 func New(
 	users UserRepository,
 	sessions SessionRepository,
 	signer *token.Signer,
+	refreshTTL time.Duration,
 ) *Service {
 	return &Service{
-		users:    users,
-		sessions: sessions,
-		signer:   signer,
+		users:      users,
+		sessions:   sessions,
+		signer:     signer,
+		refreshTTL: refreshTTL,
 	}
 }

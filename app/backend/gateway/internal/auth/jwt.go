@@ -11,16 +11,17 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-const (
-	issuer   = "cardhub-identity"
-	audience = "cardhub-api"
-)
-
 type Verifier struct {
 	publicKey ed25519.PublicKey
+	issuer    string
+	audience  string
 }
 
-func NewVerifier(path string) (*Verifier, error) {
+func NewVerifier(path, issuer, audience string) (*Verifier, error) {
+	if issuer == "" || audience == "" {
+		return nil, errors.New("JWT issuer and audience must not be empty")
+	}
+
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("read JWT public key: %w", err)
@@ -42,7 +43,7 @@ func NewVerifier(path string) (*Verifier, error) {
 		return nil, errors.New("expected Ed25519 public key")
 	}
 
-	return &Verifier{publicKey: publicKey}, nil
+	return &Verifier{publicKey: publicKey, issuer: issuer, audience: audience}, nil
 }
 
 func (v *Verifier) Verify(raw string) (string, error) {
@@ -55,8 +56,8 @@ func (v *Verifier) Verify(raw string) (string, error) {
 			return v.publicKey, nil
 		},
 		jwt.WithValidMethods([]string{"EdDSA"}),
-		jwt.WithIssuer(issuer),
-		jwt.WithAudience(audience),
+		jwt.WithIssuer(v.issuer),
+		jwt.WithAudience(v.audience),
 		jwt.WithExpirationRequired(),
 		jwt.WithIssuedAt(),
 		jwt.WithLeeway(5_000_000_000), // 5 seconds

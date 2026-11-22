@@ -6,6 +6,7 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"net/mail"
 	"regexp"
@@ -15,10 +16,7 @@ import (
 	"cardhub/backend/identity/internal/password"
 )
 
-const (
-	refreshTTL        = 30 * 24 * time.Hour
-	refreshTokenBytes = 32
-)
+const refreshTokenBytes = 32
 
 var (
 	usernamePattern = regexp.MustCompile(
@@ -80,7 +78,7 @@ func (s *Service) Login(
 
 	user, err := s.users.GetByEmail(ctx, email)
 	if err != nil {
-		if err == ErrNotFound {
+		if errors.Is(err, ErrNotFound) {
 			return AuthTokens{}, ErrInvalidCredentials
 		}
 		return AuthTokens{}, err
@@ -118,7 +116,7 @@ func (s *Service) Login(
 		ctx,
 		user.ID,
 		hashRefreshToken(refreshToken),
-		time.Now().UTC().Add(refreshTTL),
+		time.Now().UTC().Add(s.refreshTTL),
 	)
 	if err != nil {
 		return AuthTokens{}, fmt.Errorf(
@@ -174,7 +172,7 @@ func (s *Service) RefreshToken(
 		ctx,
 		hashRefreshToken(oldRefreshToken),
 		hashRefreshToken(newRefreshToken),
-		time.Now().UTC().Add(refreshTTL),
+		time.Now().UTC().Add(s.refreshTTL),
 	)
 	if err != nil {
 		return AuthTokens{}, err
