@@ -3,11 +3,11 @@ services:
   postgres:
     image: postgres:18.6-alpine
     environment:
-      POSTGRES_DB: cardhub_example
+      POSTGRES_DB: cardhub
       POSTGRES_USER: cardhub
       POSTGRES_PASSWORD: cardhub
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U cardhub -d cardhub_example"]
+      test: ["CMD-SHELL", "pg_isready -U cardhub -d cardhub"]
       interval: 2s
       timeout: 3s
       retries: 15
@@ -20,11 +20,30 @@ services:
       dockerfile: migrations/Dockerfile
     environment:
       GOOSE_DRIVER: postgres
-      GOOSE_DBSTRING: postgres://cardhub:cardhub@postgres:5432/cardhub_example?sslmode=disable
-      GOOSE_MIGRATION_DIR: /migrations/example
+      GOOSE_DBSTRING: postgres://cardhub:cardhub@postgres:5432/cardhub?sslmode=disable
     depends_on:
       postgres:
         condition: service_healthy
+    restart: "no"
+    entrypoint: ["/bin/sh", "-ec"]
+    command:
+      - |
+        for service in example identity; do
+          echo "Migrating $${service}..."
+
+          export GOOSE_MIGRATION_DIR="/migrations/$${service}"
+          export GOOSE_TABLE="goose_$${service}_version"
+
+          goose up
+        done
+  
+  jwt-init:
+    build:
+      context: .
+      dockerfile: init/Dockerfile
+    volumes:
+      - jwt_private:/keys/private
+      - jwt_public:/keys/public
     restart: "no"
 
   service-example:
@@ -34,7 +53,7 @@ services:
     environment:
       APP_ENV: production
       GRPC_ADDR: :9000
-      DATABASE_URL: postgres://cardhub:cardhub@postgres:5432/cardhub_example?sslmode=disable
+      DATABASE_URL: postgres://cardhub:cardhub@postgres:5432/cardhub?sslmode=disable
     depends_on:
       migrate:
         condition: service_completed_successfully
@@ -47,11 +66,18 @@ services:
     environment:
       APP_ENV: production
       GRPC_ADDR: :9001
-      DATABASE_URL: postgres://cardhub:cardhub@postgres:5432/cardhub_example?sslmode=disable
+      DATABASE_URL: postgres://cardhub:cardhub@postgres:5432/cardhub?sslmode=disable
+      JWT_KEY_PATH: /run/keys/jwt-private.pem
+    volumes:
+      - jwt_private:/run/keys:ro
     depends_on:
       migrate:
         condition: service_completed_successfully
+      jwt-init:
+        condition: service_completed_successfully
     restart: unless-stopped
+    ports:
+      - "9001:9001"
 
   gateway:
     build:
@@ -61,11 +87,19 @@ services:
       APP_ENV: production
       HTTP_ADDR: :8080
       EXAMPLE_GRPC_ADDR: service-example:9000
+      IDENTITY_GRPC_ADDR: identity:9001
+      JWT_PUBLIC_KEY_PATH: /run/keys/jwt-public.pem
+    volumes:
+      - jwt_public:/run/keys:ro
     depends_on:
       - service-example
+      - identity
+      - jwt-init
     ports:
       - "127.0.0.1:8080:8080"
     restart: unless-stopped
 
 volumes:
   postgres_data:
+  jwt_private:
+  jwt_public:

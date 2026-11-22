@@ -5,6 +5,7 @@ go 1.27
 require (
 	cardhub/backend/foundation v0.0.0
 	cardhub/backend/protocol v0.0.0
+	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/jackc/pgx/v5 v5.11.0
 	go.uber.org/zap v1.28.0
 	golang.org/x/crypto v0.54.0
