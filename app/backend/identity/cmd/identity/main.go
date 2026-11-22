@@ -11,10 +11,12 @@ import (
 	"cardhub/backend/foundation/grpcserver"
 	"cardhub/backend/foundation/logging"
 	foundationpostgres "cardhub/backend/foundation/postgres"
-	examplev1 "cardhub/backend/protocol/gen/example/v1"
-	repository "cardhub/backend/service-example/internal/postgres"
-	"cardhub/backend/service-example/internal/service"
-	transport "cardhub/backend/service-example/internal/transport/grpc"
+	repository "cardhub/backend/identity/internal/postgres"
+	"cardhub/backend/identity/internal/service"
+	"cardhub/backend/identity/internal/token"
+	transport "cardhub/backend/identity/internal/transport/grpc"
+	identityv1 "cardhub/backend/protocol/gen/identity/v1"
+
 	"go.uber.org/zap"
 )
 
@@ -33,16 +35,26 @@ func main() {
 		logger.Fatal("configuration", zap.Error(err))
 	}
 
+	keyPath, err := config.Required("JWT_KEY_PATH")
+	if err != nil {
+		logger.Fatal("configuration", zap.Error(err))
+	}
+
 	pool, err := foundationpostgres.Open(ctx, url)
 	if err != nil {
 		logger.Fatal("postgres", zap.Error(err))
 	}
 	defer pool.Close()
 
-	svc := service.New(repository.New(pool))
+	signer, err := token.NewSigner(keyPath)
+	if err != nil {
+		logger.Fatal("signer", zap.Error(err))
+	}
+
+	svc := service.New(repository.NewUserRepository(pool), repository.NewSessionRepository(pool), signer)
 	server := grpcserver.New(logger)
-	examplev1.RegisterExampleServiceServer(server, transport.New(svc, logger))
-	if err := grpcserver.Run(ctx, config.Env("GRPC_ADDR", ":9000"), server, logger); err != nil {
+	identityv1.RegisterIdentityServiceServer(server, transport.New(svc, logger))
+	if err := grpcserver.Run(ctx, config.Env("GRPC_ADDR", ":9001"), server, logger); err != nil {
 		logger.Fatal("grpc server", zap.Error(err))
 	}
 }

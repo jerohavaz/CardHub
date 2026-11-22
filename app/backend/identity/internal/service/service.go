@@ -1,42 +1,86 @@
-// Package service owns application rules without any gRPC or SQL imports.
 package service
 
 import (
 	"context"
 	"errors"
-	"regexp"
-	"strings"
-	"unicode/utf8"
+	"time"
+
+	"cardhub/backend/identity/internal/token"
 )
 
-var ErrNotFound = errors.New("example not found")
-var ErrInvalidName = errors.New("name must be 1-120 characters")
-var ErrInvalidID = errors.New("invalid example UUID")
-var uuidPattern = regexp.MustCompile(`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$`)
+var (
+	ErrNotFound           = errors.New("user not found")
+	ErrUserExists         = errors.New("user already exists")
+	ErrInvalidEmail       = errors.New("invalid email")
+	ErrInvalidUsername    = errors.New("invalid username")
+	ErrInvalidPassword    = errors.New("invalid password")
+	ErrInvalidID          = errors.New("invalid user ID")
+	ErrInvalidCredentials = errors.New("invalid credentials")
+	ErrAccountDisabled    = errors.New("account disabled")
+	ErrInvalidSession     = errors.New("invalid or expired session")
+)
 
-type Example struct {
-	ID   string
-	Name string
+type User struct {
+	ID              string
+	Email           string
+	Username        string
+	PasswordHash    string
+	IsActive        bool
+	EmailVerifiedAt *time.Time
+	CreatedAt       time.Time
+	UpdatedAt       time.Time
 }
 
-type Repository interface {
-	Create(context.Context, string) (Example, error)
-	Get(context.Context, string) (Example, error)
+// UserRepository handles user persistence.
+type UserRepository interface {
+	Create(
+		ctx context.Context,
+		email, username, passwordHash string,
+	) (User, error)
+
+	GetByID(ctx context.Context, id string) (User, error)
+	GetByEmail(ctx context.Context, email string) (User, error)
 }
 
-type Service struct{ repo Repository }
+// SessionRepository handles refresh-token persistence.
+type SessionRepository interface {
+	CreateSession(
+		ctx context.Context,
+		userID, tokenHash string,
+		expiresAt time.Time,
+	) error
 
-func New(repo Repository) *Service { return &Service{repo: repo} }
-func (s *Service) Create(ctx context.Context, name string) (Example, error) {
-	name = strings.TrimSpace(name)
-	if utf8.RuneCountInString(name) == 0 || utf8.RuneCountInString(name) > 120 {
-		return Example{}, ErrInvalidName
+	RotateSession(
+		ctx context.Context,
+		oldTokenHash, newTokenHash string,
+		expiresAt time.Time,
+	) (string, error)
+
+	RevokeSession(
+		ctx context.Context,
+		tokenHash string,
+	) error
+}
+
+type AuthTokens struct {
+	AccessToken  string
+	RefreshToken string
+}
+
+type Service struct {
+	users    UserRepository
+	sessions SessionRepository
+	signer   *token.Signer
+}
+
+func New(
+	users UserRepository,
+	sessions SessionRepository,
+	signer *token.Signer,
+) *Service {
+	return &Service{
+		users:    users,
+		sessions: sessions,
+		signer:   signer,
 	}
-	return s.repo.Create(ctx, name)
-}
-func (s *Service) Get(ctx context.Context, id string) (Example, error) {
-	if !uuidPattern.MatchString(id) {
-		return Example{}, ErrInvalidID
-	}
-	return s.repo.Get(ctx, id)
 }

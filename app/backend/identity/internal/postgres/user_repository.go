@@ -1,3 +1,4 @@
+
 package postgres
 
 import (
@@ -12,15 +13,15 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type Repository struct {
+type UserRepository struct {
 	pool *pgxpool.Pool
 }
 
-func New(pool *pgxpool.Pool) *Repository {
-	return &Repository{pool: pool}
+func NewUserRepository(pool *pgxpool.Pool) *UserRepository {
+	return &UserRepository{pool: pool}
 }
 
-func (r *Repository) Create(
+func (r *UserRepository) Create(
 	ctx context.Context,
 	email, username, passwordHash string,
 ) (service.User, error) {
@@ -42,7 +43,6 @@ func (r *Repository) Create(
 		&u.CreatedAt,
 		&u.UpdatedAt,
 	)
-
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
@@ -54,7 +54,7 @@ func (r *Repository) Create(
 	return u, nil
 }
 
-func (r *Repository) GetByID(
+func (r *UserRepository) GetByID(
 	ctx context.Context,
 	id string,
 ) (service.User, error) {
@@ -87,7 +87,7 @@ func (r *Repository) GetByID(
 	return u, nil
 }
 
-func (r *Repository) GetByEmail(
+func (r *UserRepository) GetByEmail(
 	ctx context.Context,
 	email string,
 ) (service.User, error) {
