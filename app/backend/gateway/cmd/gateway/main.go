@@ -13,7 +13,9 @@ import (
 	"cardhub/backend/foundation/config"
 	"cardhub/backend/foundation/logging"
 	"cardhub/backend/gateway/internal/api"
+	"cardhub/backend/gateway/internal/auth"
 	"cardhub/backend/gateway/internal/client"
+
 	"go.uber.org/zap"
 )
 
@@ -30,7 +32,31 @@ func main() {
 	}
 	defer conn.Close()
 
-	server := &http.Server{Addr: config.Env("HTTP_ADDR", ":8080"), Handler: api.Router(rpc, logger), ReadHeaderTimeout: 5 * time.Second}
+	identityRPC, identityConn, err := client.DialIdentity(
+		config.Env("IDENTITY_GRPC_ADDR", "localhost:9001"),
+	)
+	if err != nil {
+		logger.Fatal("dial identity gRPC", zap.Error(err))
+	}
+	defer identityConn.Close()
+
+	verifier, err := auth.NewVerifier(
+		config.Env("JWT_PUBLIC_KEY_PATH", "/run/keys/jwt-public.pem"),
+	)
+	if err != nil {
+		logger.Fatal("load JWT public key", zap.Error(err))
+	}
+
+	server := &http.Server{
+		Addr: config.Env("HTTP_ADDR", ":8080"),
+		Handler: api.Router(
+			rpc,
+			identityRPC,
+			verifier,
+			logger,
+		),
+		ReadHeaderTimeout: 5 * time.Second,
+	}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
