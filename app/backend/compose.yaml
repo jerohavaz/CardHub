@@ -40,6 +40,19 @@ services:
         condition: service_completed_successfully
     restart: unless-stopped
 
+  identity:
+    build:
+      context: .
+      dockerfile: identity/Dockerfile
+    environment:
+      APP_ENV: production
+      GRPC_ADDR: :9001
+      DATABASE_URL: postgres://cardhub:cardhub@postgres:5432/cardhub_example?sslmode=disable
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
   gateway:
     build:
       context: .
