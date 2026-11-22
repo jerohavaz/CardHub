@@ -1,4 +1,3 @@
-
 package password
 
 import "testing"

@@ -76,8 +76,6 @@ services:
       jwt-init:
         condition: service_completed_successfully
     restart: unless-stopped
-    ports:
-      - "9001:9001"
 
   gateway:
     build:
@@ -92,9 +90,12 @@ services:
     volumes:
       - jwt_public:/run/keys:ro
     depends_on:
-      - service-example
-      - identity
-      - jwt-init
+      service-example:
+        condition: service_started
+      identity:
+        condition: service_started
+      jwt-init:
+        condition: service_completed_successfully
     ports:
       - "127.0.0.1:8080:8080"
     restart: unless-stopped
