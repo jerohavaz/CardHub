@@ -10,3 +10,9 @@ A Pokémon card collection and trading application.
 ## Getting Started
 
 See the [Backend README](app/backend/README.md) for setup instructions, development commands, and API documentation.
+
+### AI TRAINING
+https://github.com/jerohavaz/CardHubAI
+
+### AI INTEGRATION IN COMPOSE
+https://github.com/jerohavaz/COMPOSE-MULTIPLATFORM-MINIMAL
