@@ -1,6 +1,6 @@
 .PHONY: generate lint fmt fmt-check deps test up down migrate logs smoke clean
 
-MODULES := foundation protocol service-example gateway
+MODULES := foundation protocol service-example gateway identity
 
 generate:
 	cd protocol && buf generate

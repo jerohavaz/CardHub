@@ -7,6 +7,7 @@ require (
 	cardhub/backend/protocol v0.0.0
 	github.com/danielgtaylor/huma/v2 v2.39.1
 	github.com/go-chi/chi/v5 v5.5.0
+	github.com/golang-jwt/jwt/v5 v5.3.1
 	go.uber.org/zap v1.28.0
 	google.golang.org/grpc v1.84.0
 )

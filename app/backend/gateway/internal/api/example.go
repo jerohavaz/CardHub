@@ -8,8 +8,6 @@ import (
 	examplev1 "cardhub/backend/protocol/gen/example/v1"
 	"github.com/danielgtaylor/huma/v2"
 	"go.uber.org/zap"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 type exampleBody struct {
@@ -64,20 +62,4 @@ func registerExample(h huma.API, client examplev1.ExampleServiceClient, logger *
 
 		return &exampleOutput{Body: exampleBody{ID: out.GetId(), Name: out.GetName()}}, nil
 	})
-}
-
-func publicError(err error, logger *zap.Logger) error {
-	switch status.Code(err) {
-	case codes.InvalidArgument:
-		return huma.Error400BadRequest(status.Convert(err).Message())
-	case codes.NotFound:
-		return huma.Error404NotFound("example not found")
-	case codes.DeadlineExceeded:
-		return huma.Error504GatewayTimeout("service timed out")
-	case codes.Unavailable:
-		return huma.Error503ServiceUnavailable("service unavailable")
-	default:
-		logger.Error("backend gRPC error", zap.Error(err))
-		return huma.Error502BadGateway("backend request failed")
-	}
 }

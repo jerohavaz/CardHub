@@ -30,6 +30,7 @@ jobs:
             app/backend/protocol/go.sum
             app/backend/service-example/go.sum
             app/backend/gateway/go.sum
+            app/backend/identity/go.sum
 
       - name: Check formatting
         run: make fmt-check
