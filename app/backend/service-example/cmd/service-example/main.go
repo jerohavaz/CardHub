@@ -7,42 +7,66 @@ import (
 	"os/signal"
 	"syscall"
 
-	"cardhub/backend/foundation/config"
 	"cardhub/backend/foundation/grpcserver"
 	"cardhub/backend/foundation/logging"
 	foundationpostgres "cardhub/backend/foundation/postgres"
 	examplev1 "cardhub/backend/protocol/gen/example/v1"
+	exampleconfig "cardhub/backend/service-example/internal/config"
 	repository "cardhub/backend/service-example/internal/postgres"
 	"cardhub/backend/service-example/internal/service"
 	transport "cardhub/backend/service-example/internal/transport/grpc"
+
 	"go.uber.org/zap"
 )
 
 func main() {
-	logger, err := logging.New(config.Env("APP_ENV", "development") == "development")
+	// Load and validate configuration.
+	cfg, err := exampleconfig.Load()
+	if err != nil {
+		log.Fatal("configuration: ", err)
+	}
+
+	// Initialize logging.
+	logger, err := logging.New(cfg.AppEnv == "development")
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer logger.Sync() // stdout sync is a no-op or unsupported on some platforms.
+	defer logger.Sync()
 
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	// Handle shutdown signals.
+	ctx, stop := signal.NotifyContext(
+		context.Background(),
+		os.Interrupt,
+		syscall.SIGTERM,
+	)
 	defer stop()
 
-	url, err := config.Required("DATABASE_URL")
-	if err != nil {
-		logger.Fatal("configuration", zap.Error(err))
-	}
-
-	pool, err := foundationpostgres.Open(ctx, url)
+	// Connect to PostgreSQL.
+	pool, err := foundationpostgres.Open(ctx, cfg.DatabaseURL)
 	if err != nil {
 		logger.Fatal("postgres", zap.Error(err))
 	}
 	defer pool.Close()
 
-	svc := service.New(repository.New(pool))
+	// Initialize repository and business logic.
+	repo := repository.New(pool)
+	svc := service.New(repo)
+
+	// Register gRPC handlers.
 	server := grpcserver.New(logger)
-	examplev1.RegisterExampleServiceServer(server, transport.New(svc, logger))
-	if err := grpcserver.Run(ctx, config.Env("GRPC_ADDR", ":9000"), server, logger); err != nil {
+
+	examplev1.RegisterExampleServiceServer(
+		server,
+		transport.New(svc, logger),
+	)
+
+	// Start the gRPC server.
+	if err := grpcserver.Run(
+		ctx,
+		cfg.GRPCAddr,
+		server,
+		logger,
+	); err != nil {
 		logger.Fatal("grpc server", zap.Error(err))
 	}
 }

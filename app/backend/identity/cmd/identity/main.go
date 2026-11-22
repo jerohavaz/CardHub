@@ -6,12 +6,11 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
-	"cardhub/backend/foundation/config"
 	"cardhub/backend/foundation/grpcserver"
 	"cardhub/backend/foundation/logging"
 	foundationpostgres "cardhub/backend/foundation/postgres"
+	"cardhub/backend/identity/internal/config"
 	repository "cardhub/backend/identity/internal/postgres"
 	"cardhub/backend/identity/internal/service"
 	"cardhub/backend/identity/internal/token"
@@ -22,57 +21,73 @@ import (
 )
 
 func main() {
-	logger, err := logging.New(config.Env("APP_ENV", "development") == "development")
+	// Load and validate configuration.
+	cfg, err := config.Load()
+	if err != nil {
+		log.Fatal("configuration: ", err)
+	}
+
+	// Initialize logging.
+	logger, err := logging.New(cfg.AppEnv == "development")
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer logger.Sync() // stdout sync is a no-op or unsupported on some platforms.
+	defer logger.Sync()
 
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	// Handle shutdown signals.
+	ctx, stop := signal.NotifyContext(
+		context.Background(),
+		os.Interrupt,
+		syscall.SIGTERM,
+	)
 	defer stop()
 
-	url, err := config.Required("DATABASE_URL")
-	if err != nil {
-		logger.Fatal("configuration", zap.Error(err))
-	}
-
-	keyPath, err := config.Required("JWT_KEY_PATH")
-	if err != nil {
-		logger.Fatal("configuration", zap.Error(err))
-	}
-
-	pool, err := foundationpostgres.Open(ctx, url)
+	// Connect to PostgreSQL.
+	pool, err := foundationpostgres.Open(ctx, cfg.DatabaseURL)
 	if err != nil {
 		logger.Fatal("postgres", zap.Error(err))
 	}
 	defer pool.Close()
 
-	accessTTL, err := config.DurationEnv(
-		"JWT_ACCESS_TTL",
-		15*time.Minute,
-	)
-	if err != nil {
-		logger.Fatal("invalid JWT access TTL", zap.Error(err))
-	}
-
+	// Initialize JWT signer.
 	signer, err := token.NewSigner(
-		keyPath,
+		cfg.JWTKeyPath,
 		token.Config{
-			Issuer:    config.Env("JWT_ISSUER", "cardhub-identity"),
-			Audience:  config.Env("JWT_AUDIENCE", "cardhub-api"),
-			AccessTTL: accessTTL,
+			Issuer:    cfg.JWTIssuer,
+			Audience:  cfg.JWTAudience,
+			AccessTTL: cfg.JWTAccessTTL,
 		},
 	)
-
-	refreshTTL, err := config.DurationEnv("JWT_REFRESH_TTL", 720*24*time.Minute)
 	if err != nil {
-		logger.Fatal("invalid JWT refresh TTL", zap.Error(err))
+		logger.Fatal("JWT signer", zap.Error(err))
 	}
 
-	svc := service.New(repository.NewUserRepository(pool), repository.NewSessionRepository(pool), signer, refreshTTL)
+	// Initialize repositories and business logic.
+	users := repository.NewUserRepository(pool)
+	sessions := repository.NewSessionRepository(pool)
+
+	svc := service.New(
+		users,
+		sessions,
+		signer,
+		cfg.JWTRefreshTTL,
+	)
+
+	// Register gRPC handlers.
 	server := grpcserver.New(logger)
-	identityv1.RegisterIdentityServiceServer(server, transport.New(svc, logger))
-	if err := grpcserver.Run(ctx, config.Env("GRPC_ADDR", ":9001"), server, logger); err != nil {
+
+	identityv1.RegisterIdentityServiceServer(
+		server,
+		transport.New(svc, logger),
+	)
+
+	// Start the gRPC server.
+	if err := grpcserver.Run(
+		ctx,
+		cfg.GRPCAddr,
+		server,
+		logger,
+	); err != nil {
 		logger.Fatal("grpc server", zap.Error(err))
 	}
 }

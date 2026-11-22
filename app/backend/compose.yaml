@@ -96,7 +96,7 @@ services:
       GRPC_ADDR: :9001
       JWT_KEY_PATH: /run/keys/jwt-private.pem
       JWT_ACCESS_TTL: ${JWT_ACCESS_TTL:-15m}
-      JWT_REFRESH_TTL: ${JWT_REFRESH_TTL:-720h}
+      REFRESH_TOKEN_TTL: ${REFRESH_TOKEN_TTL:-720h}
     volumes:
       - jwt_private:/run/keys:ro
     depends_on:
