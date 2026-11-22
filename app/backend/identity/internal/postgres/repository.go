@@ -1,4 +1,3 @@
-// Package postgres is the only example-service package that knows SQL.
 package postgres
 
 import (
@@ -6,32 +5,117 @@ import (
 	"errors"
 	"fmt"
 
-	"cardhub/backend/service-example/internal/service"
+	"cardhub/backend/identity/internal/service"
+
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type Repository struct{ pool *pgxpool.Pool }
-
-func New(pool *pgxpool.Pool) *Repository { return &Repository{pool: pool} }
-
-func (r *Repository) Create(ctx context.Context, name string) (service.Example, error) {
-	var id string
-	err := r.pool.QueryRow(ctx, `INSERT INTO examples (name) VALUES ($1) RETURNING id::text`, name).Scan(&id)
-	if err != nil {
-		return service.Example{}, fmt.Errorf("insert example: %w", err)
-	}
-	return service.Example{ID: id, Name: name}, nil
+type Repository struct {
+	pool *pgxpool.Pool
 }
 
-func (r *Repository) Get(ctx context.Context, id string) (service.Example, error) {
-	var e service.Example
-	err := r.pool.QueryRow(ctx, `SELECT id::text, name FROM examples WHERE id = $1::uuid`, id).Scan(&e.ID, &e.Name)
+func New(pool *pgxpool.Pool) *Repository {
+	return &Repository{pool: pool}
+}
+
+func (r *Repository) Create(
+	ctx context.Context,
+	email, username, passwordHash string,
+) (service.User, error) {
+	var u service.User
+
+	err := r.pool.QueryRow(ctx, `
+		INSERT INTO users (email, username, password_hash)
+		VALUES ($1, $2, $3)
+		RETURNING id::text, email, username, password_hash,
+		          is_active, email_verified_at,
+		          created_at, updated_at
+	`, email, username, passwordHash).Scan(
+		&u.ID,
+		&u.Email,
+		&u.Username,
+		&u.PasswordHash,
+		&u.IsActive,
+		&u.EmailVerifiedAt,
+		&u.CreatedAt,
+		&u.UpdatedAt,
+	)
+
+	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
+			return service.User{}, service.ErrUserExists
+		}
+		return service.User{}, fmt.Errorf("insert user: %w", err)
+	}
+
+	return u, nil
+}
+
+func (r *Repository) GetByID(
+	ctx context.Context,
+	id string,
+) (service.User, error) {
+	var u service.User
+
+	err := r.pool.QueryRow(ctx, `
+		SELECT id::text, email, username, password_hash,
+		       is_active, email_verified_at,
+		       created_at, updated_at
+		FROM users
+		WHERE id = $1::uuid
+	`, id).Scan(
+		&u.ID,
+		&u.Email,
+		&u.Username,
+		&u.PasswordHash,
+		&u.IsActive,
+		&u.EmailVerifiedAt,
+		&u.CreatedAt,
+		&u.UpdatedAt,
+	)
+
 	if errors.Is(err, pgx.ErrNoRows) {
-		return service.Example{}, service.ErrNotFound
+		return service.User{}, service.ErrNotFound
 	}
 	if err != nil {
-		return service.Example{}, fmt.Errorf("select example: %w", err)
+		return service.User{}, fmt.Errorf("select user by id: %w", err)
 	}
-	return e, nil
+
+	return u, nil
+}
+
+func (r *Repository) GetByEmail(
+	ctx context.Context,
+	email string,
+) (service.User, error) {
+	var u service.User
+
+	err := r.pool.QueryRow(ctx, `
+		SELECT id::text, email, username, password_hash,
+		       is_active, email_verified_at,
+		       created_at, updated_at
+		FROM users
+		WHERE lower(email) = lower($1)
+	`, email).Scan(
+		&u.ID,
+		&u.Email,
+		&u.Username,
+		&u.PasswordHash,
+		&u.IsActive,
+		&u.EmailVerifiedAt,
+		&u.CreatedAt,
+		&u.UpdatedAt,
+	)
+
+	if errors.Is(err, pgx.ErrNoRows) {
+		return service.User{}, service.ErrNotFound
+	}
+	if err != nil {
+		return service.User{}, fmt.Errorf("select user by email: %w", err)
+	}
+
+	return u, nil
 }
