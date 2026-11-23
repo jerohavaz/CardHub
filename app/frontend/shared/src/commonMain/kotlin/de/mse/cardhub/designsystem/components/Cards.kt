@@ -28,9 +28,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import de.mse.cardhub.designsystem.icons.CardHubIcon
-import de.mse.cardhub.designsystem.icons.CardHubIconImage
-import de.mse.cardhub.designsystem.theme.CardHubTheme
+import de.mse.cardhub.designsystem.icons.CardwiseIcon
+import de.mse.cardhub.designsystem.icons.CardwiseIconImage
+import de.mse.cardhub.designsystem.theme.CardwiseTheme
 
 /** Aspect ratio of a real trading card (63 × 88 mm). */
 const val CardAspectRatio = 63f / 88f
@@ -98,8 +98,8 @@ fun CardTile(
     modifier: Modifier = Modifier,
     artwork: @Composable () -> Unit = { CardArtwork(Modifier.height(TileArtworkHeight)) },
 ) {
-    val colors = CardHubTheme.colors
-    val shape = CardHubTheme.shapes.card
+    val colors = CardwiseTheme.colors
+    val shape = CardwiseTheme.shapes.card
     Column(
         modifier = modifier
             .shadow(1.dp, shape, ambientColor = ShadowColor, spotColor = ShadowColor)
@@ -113,7 +113,7 @@ fun CardTile(
         Row(Modifier.fillMaxWidth().padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(
                 name,
-                style = CardHubTheme.typography.labelStrong,
+                style = CardwiseTheme.typography.labelStrong,
                 color = colors.text,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -121,9 +121,9 @@ fun CardTile(
             )
             RarityTag(rarity)
         }
-        Text(meta, style = CardHubTheme.typography.badge.copy(fontWeight = null), color = colors.muted, modifier = Modifier.padding(top = 4.dp))
+        Text(meta, style = CardwiseTheme.typography.badge.copy(fontWeight = null), color = colors.muted, modifier = Modifier.padding(top = 4.dp))
         Row(Modifier.fillMaxWidth().padding(top = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text(price, style = CardHubTheme.typography.label, color = colors.text, modifier = Modifier.weight(1f))
+            Text(price, style = CardwiseTheme.typography.label, color = colors.text, modifier = Modifier.weight(1f))
             AddButton(onClick = onAdd, contentDescription = "$name zur Sammlung hinzufügen")
         }
     }
@@ -142,8 +142,8 @@ fun CollectionItemRow(
     modifier: Modifier = Modifier,
     artwork: @Composable () -> Unit = { CardArtwork(Modifier.width(56.dp), cornerRadius = 4.dp) },
 ) {
-    val colors = CardHubTheme.colors
-    val shape = CardHubTheme.shapes.xl
+    val colors = CardwiseTheme.colors
+    val shape = CardwiseTheme.shapes.xl
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -157,9 +157,9 @@ fun CollectionItemRow(
     ) {
         artwork()
         Column(Modifier.weight(1f)) {
-            Text(name, style = CardHubTheme.typography.labelStrong, color = colors.text)
-            Text(meta, style = CardHubTheme.typography.caption, color = colors.muted, modifier = Modifier.padding(top = 4.dp))
-            CardHubBadge(price, modifier = Modifier.padding(top = 10.dp))
+            Text(name, style = CardwiseTheme.typography.labelStrong, color = colors.text)
+            Text(meta, style = CardwiseTheme.typography.caption, color = colors.muted, modifier = Modifier.padding(top = 4.dp))
+            CardwiseBadge(price, modifier = Modifier.padding(top = 10.dp))
         }
         Column(horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Stepper(value = quantity, onValueChange = onQuantityChange)
@@ -167,11 +167,11 @@ fun CollectionItemRow(
                 Modifier
                     .height(32.dp)
                     .width(30.dp)
-                    .clip(CardHubTheme.shapes.sm)
+                    .clip(CardwiseTheme.shapes.sm)
                     .clickable(onClickLabel = "$name entfernen", onClick = onRemove),
                 contentAlignment = Alignment.Center,
             ) {
-                CardHubIconImage(CardHubIcon.Trash, tint = colors.dangerIcon, size = 16.dp, contentDescription = "$name entfernen")
+                CardwiseIconImage(CardwiseIcon.Trash, tint = colors.dangerIcon, size = 16.dp, contentDescription = "$name entfernen")
             }
         }
     }
@@ -190,8 +190,8 @@ fun HeroBanner(
         CardArtwork(Modifier.width(94.dp).padding(top = 4.dp), cornerRadius = 6.dp, elevation = 8.dp)
     },
 ) {
-    val colors = CardHubTheme.colors
-    val shape = CardHubTheme.shapes.hero
+    val colors = CardwiseTheme.colors
+    val shape = CardwiseTheme.shapes.hero
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -209,11 +209,11 @@ fun HeroBanner(
         )
         Row(Modifier.padding(17.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text(eyebrow.uppercase(), style = CardHubTheme.typography.badge.copy(letterSpacing = CardHubTheme.typography.eyebrow.letterSpacing), color = colors.blue)
-                Text(title, style = CardHubTheme.typography.hero, color = colors.heroText, modifier = Modifier.padding(top = 9.dp))
+                Text(eyebrow.uppercase(), style = CardwiseTheme.typography.badge.copy(letterSpacing = CardwiseTheme.typography.eyebrow.letterSpacing), color = colors.blue)
+                Text(title, style = CardwiseTheme.typography.hero, color = colors.heroText, modifier = Modifier.padding(top = 9.dp))
                 Text(
                     text,
-                    style = CardHubTheme.typography.caption.copy(lineHeight = CardHubTheme.typography.caption.fontSize * 1.45),
+                    style = CardwiseTheme.typography.caption.copy(lineHeight = CardwiseTheme.typography.caption.fontSize * 1.45),
                     color = colors.heroText.copy(alpha = 0.65f),
                     modifier = Modifier.padding(top = 7.dp, bottom = 12.dp),
                 )

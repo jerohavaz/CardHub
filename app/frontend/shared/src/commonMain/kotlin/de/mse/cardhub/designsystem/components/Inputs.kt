@@ -25,11 +25,11 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import de.mse.cardhub.designsystem.icons.CardHubIcon
-import de.mse.cardhub.designsystem.icons.CardHubIconImage
-import de.mse.cardhub.designsystem.theme.CardHubTheme
+import de.mse.cardhub.designsystem.icons.CardwiseIcon
+import de.mse.cardhub.designsystem.icons.CardwiseIconImage
+import de.mse.cardhub.designsystem.theme.CardwiseTheme
 
-/** Base input field. Used by [SearchField] and [CardHubTextField]. */
+/** Base input field. Used by [SearchField] and [CardwiseTextField]. */
 @Composable
 private fun FieldContainer(
     value: String,
@@ -41,13 +41,13 @@ private fun FieldContainer(
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     visualTransformation: VisualTransformation = VisualTransformation.None,
 ) {
-    val colors = CardHubTheme.colors
-    val shape = CardHubTheme.shapes.lg
+    val colors = CardwiseTheme.colors
+    val shape = CardwiseTheme.shapes.lg
     BasicTextField(
         value = value,
         onValueChange = onValueChange,
         singleLine = true,
-        textStyle = CardHubTheme.typography.body.copy(color = colors.text),
+        textStyle = CardwiseTheme.typography.body.copy(color = colors.text),
         cursorBrush = SolidColor(colors.blue),
         keyboardOptions = keyboardOptions,
         visualTransformation = visualTransformation,
@@ -67,7 +67,7 @@ private fun FieldContainer(
                 leading?.invoke()
                 Box(Modifier.weight(1f)) {
                     if (value.isEmpty()) {
-                        Text(placeholder, style = CardHubTheme.typography.body, color = colors.placeholder)
+                        Text(placeholder, style = CardwiseTheme.typography.body, color = colors.placeholder)
                     }
                     innerTextField()
                 }
@@ -86,13 +86,13 @@ fun SearchField(
     modifier: Modifier = Modifier,
     onFilterClick: (() -> Unit)? = null,
 ) {
-    val colors = CardHubTheme.colors
+    val colors = CardwiseTheme.colors
     FieldContainer(
         value = value,
         onValueChange = onValueChange,
         placeholder = placeholder,
         modifier = modifier,
-        leading = { CardHubIconImage(CardHubIcon.Search, tint = colors.muted, size = 18.dp) },
+        leading = { CardwiseIconImage(CardwiseIcon.Search, tint = colors.muted, size = 18.dp) },
         trailing = onFilterClick?.let { onClick ->
             {
                 Box(
@@ -103,7 +103,7 @@ fun SearchField(
                         .clickable(role = Role.Button, onClick = onClick),
                     contentAlignment = Alignment.Center,
                 ) {
-                    CardHubIconImage(CardHubIcon.Sliders, tint = colors.blue, size = 18.dp, contentDescription = "Filter öffnen")
+                    CardwiseIconImage(CardwiseIcon.Sliders, tint = colors.blue, size = 18.dp, contentDescription = "Filter öffnen")
                 }
             }
         },
@@ -115,7 +115,7 @@ fun SearchField(
  * Note: label spacing is not from Figma yet and still needs to be checked.
  */
 @Composable
-fun CardHubTextField(
+fun CardwiseTextField(
     value: String,
     onValueChange: (String) -> Unit,
     label: String,
@@ -125,7 +125,7 @@ fun CardHubTextField(
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
 ) {
     Column(modifier, verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Text(label, style = CardHubTheme.typography.captionStrong, color = CardHubTheme.colors.muted)
+        Text(label, style = CardwiseTheme.typography.captionStrong, color = CardwiseTheme.colors.muted)
         FieldContainer(
             value = value,
             onValueChange = onValueChange,

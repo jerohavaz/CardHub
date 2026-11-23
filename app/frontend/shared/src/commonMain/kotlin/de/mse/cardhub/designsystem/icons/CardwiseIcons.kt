@@ -31,7 +31,7 @@ import org.jetbrains.compose.resources.painterResource
  * All Icons of the App (Lucide-Stil, from Figma exported and
  * `composeResources/drawable` converted). If new icons need to be added shoudl be done there.
  */
-enum class CardHubIcon(val resource: DrawableResource) {
+enum class CardwiseIcon(val resource: DrawableResource) {
     Home(Res.drawable.ic_home),
     Trade(Res.drawable.ic_trade),
     Layers(Res.drawable.ic_layers),
@@ -51,8 +51,8 @@ enum class CardHubIcon(val resource: DrawableResource) {
 }
 
 @Composable
-fun CardHubIconImage(
-    icon: CardHubIcon,
+fun CardwiseIconImage(
+    icon: CardwiseIcon,
     tint: Color,
     modifier: Modifier = Modifier,
     size: Dp = 18.dp,

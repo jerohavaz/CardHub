@@ -12,8 +12,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import de.mse.cardhub.designsystem.icons.CardHubIcon
-import de.mse.cardhub.designsystem.theme.CardHubTheme
+import de.mse.cardhub.designsystem.icons.CardwiseIcon
+import de.mse.cardhub.designsystem.theme.CardwiseTheme
 
 /** Header of the main tabs: overline, title, subtitle and an optional action on the right. */
 @Composable
@@ -24,8 +24,8 @@ fun ScreenHeader(
     subtitle: String? = null,
     action: (@Composable () -> Unit)? = null,
 ) {
-    val colors = CardHubTheme.colors
-    val type = CardHubTheme.typography
+    val colors = CardwiseTheme.colors
+    val type = CardwiseTheme.typography
     Row(
         modifier = modifier.fillMaxWidth().padding(top = 15.dp),
         verticalAlignment = Alignment.Top,
@@ -54,11 +54,11 @@ fun BackHeader(
         horizontalArrangement = Arrangement.spacedBy(11.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        CircleIconButton(CardHubIcon.ChevronLeft, onClick = onBack, contentDescription = "Zurück")
+        CircleIconButton(CardwiseIcon.ChevronLeft, onClick = onBack, contentDescription = "Zurück")
         Text(
             text = title,
-            style = CardHubTheme.typography.titleSmall,
-            color = CardHubTheme.colors.text,
+            style = CardwiseTheme.typography.titleSmall,
+            color = CardwiseTheme.colors.text,
             modifier = Modifier.weight(1f),
         )
         actions()
@@ -77,12 +77,12 @@ fun SectionHeader(
         modifier = modifier.fillMaxWidth().padding(top = 20.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(title, style = CardHubTheme.typography.section, color = CardHubTheme.colors.text, modifier = Modifier.weight(1f))
+        Text(title, style = CardwiseTheme.typography.section, color = CardwiseTheme.colors.text, modifier = Modifier.weight(1f))
         if (actionText != null) {
             Text(
                 text = actionText,
-                style = CardHubTheme.typography.caption,
-                color = CardHubTheme.colors.muted,
+                style = CardwiseTheme.typography.caption,
+                color = CardwiseTheme.colors.muted,
                 modifier = if (onAction != null) Modifier.clickable(onClick = onAction) else Modifier,
             )
         }

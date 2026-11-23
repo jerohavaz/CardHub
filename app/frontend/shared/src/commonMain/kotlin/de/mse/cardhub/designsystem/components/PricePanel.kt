@@ -24,7 +24,7 @@ import com.patrykandpatrick.vico.multiplatform.cartesian.rememberCartesianChart
 import com.patrykandpatrick.vico.multiplatform.cartesian.rememberVicoScrollState
 import com.patrykandpatrick.vico.multiplatform.cartesian.rememberVicoZoomState
 import com.patrykandpatrick.vico.multiplatform.common.Fill
-import de.mse.cardhub.designsystem.theme.CardHubTheme
+import de.mse.cardhub.designsystem.theme.CardwiseTheme
 
 /**
  * Price history as a line chart with a soft gradient below (Vico).
@@ -35,7 +35,7 @@ fun PriceChart(
     points: List<Double>,
     modifier: Modifier = Modifier,
 ) {
-    val colors = CardHubTheme.colors
+    val colors = CardwiseTheme.colors
     val modelProducer = remember { CartesianChartModelProducer() }
     LaunchedEffect(points) {
         if (points.isNotEmpty()) modelProducer.runTransaction { lineSeries { series(points) } }
@@ -78,16 +78,16 @@ fun PricePanel(
     modifier: Modifier = Modifier,
     trendPositive: Boolean = true,
 ) {
-    val colors = CardHubTheme.colors
+    val colors = CardwiseTheme.colors
     Panel(modifier) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom) {
             androidx.compose.foundation.layout.Column(Modifier.weight(1f)) {
-                Text(label, style = CardHubTheme.typography.caption, color = colors.muted)
-                Text(price, style = CardHubTheme.typography.price, color = colors.text)
+                Text(label, style = CardwiseTheme.typography.caption, color = colors.muted)
+                Text(price, style = CardwiseTheme.typography.price, color = colors.text)
             }
             Text(
                 text = (if (trendPositive) "↗ " else "↘ ") + trend,
-                style = CardHubTheme.typography.label.copy(fontWeight = CardHubTheme.typography.button.fontWeight),
+                style = CardwiseTheme.typography.label.copy(fontWeight = CardwiseTheme.typography.button.fontWeight),
                 color = if (trendPositive) colors.success else colors.danger,
                 modifier = Modifier.padding(bottom = 8.dp),
             )
@@ -97,7 +97,7 @@ fun PricePanel(
             Modifier.fillMaxWidth().padding(horizontal = 3.dp),
             horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween,
         ) {
-            axisLabels.forEach { Text(it, style = CardHubTheme.typography.badge.copy(fontWeight = null), color = colors.muted) }
+            axisLabels.forEach { Text(it, style = CardwiseTheme.typography.badge.copy(fontWeight = null), color = colors.muted) }
         }
     }
 }

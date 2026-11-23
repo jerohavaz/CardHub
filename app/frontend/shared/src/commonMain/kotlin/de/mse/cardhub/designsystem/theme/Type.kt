@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.sp
  * system font (iOS uses SF Pro and Android uses Roboto) to avoid licensing issue
  */
 @Immutable
-data class CardHubTypography(
+data class CardwiseTypography(
     /** Screen title, e.g. "Pokédex" */
     val display: TextStyle,
     /** Card name in the details view, e.g. "Auralith" */
@@ -34,7 +34,7 @@ data class CardHubTypography(
     val labelStrong: TextStyle,
     val caption: TextStyle,
     val captionStrong: TextStyle,
-    /** Overline "CARDHUB / POKÉDEX" */
+    /** Overline "CARDWISE / POKÉDEX" */
     val eyebrow: TextStyle,
     val button: TextStyle,
     val badge: TextStyle,
@@ -43,7 +43,7 @@ data class CardHubTypography(
 
 private val Base = TextStyle(fontFamily = FontFamily.Default)
 
-val DefaultCardHubTypography = CardHubTypography(
+val DefaultCardwiseTypography = CardwiseTypography(
     display = Base.copy(fontSize = 30.sp, lineHeight = 33.sp, fontWeight = FontWeight.Bold, letterSpacing = (-0.045).em),
     headline = Base.copy(fontSize = 26.sp, lineHeight = 39.sp, fontWeight = FontWeight.Bold, letterSpacing = (-0.035).em),
     hero = Base.copy(fontSize = 23.sp, lineHeight = 25.sp, fontWeight = FontWeight.Bold, letterSpacing = (-0.043).em),

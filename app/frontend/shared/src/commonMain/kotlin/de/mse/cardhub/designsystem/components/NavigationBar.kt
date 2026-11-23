@@ -22,17 +22,17 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
-import de.mse.cardhub.designsystem.icons.CardHubIcon
-import de.mse.cardhub.designsystem.icons.CardHubIconImage
-import de.mse.cardhub.designsystem.theme.CardHubTheme
+import de.mse.cardhub.designsystem.icons.CardwiseIcon
+import de.mse.cardhub.designsystem.icons.CardwiseIconImage
+import de.mse.cardhub.designsystem.theme.CardwiseTheme
 
 /** The five main tabs of the app. */
-enum class MainTab(val label: String, val icon: CardHubIcon) {
-    Pokedex("Pokédex", CardHubIcon.Home),
-    Trading("Trading", CardHubIcon.Trade),
-    Collection("Sammlung", CardHubIcon.Layers),
-    Friends("Freunde", CardHubIcon.Users),
-    Profile("Profil", CardHubIcon.User),
+enum class MainTab(val label: String, val icon: CardwiseIcon) {
+    Pokedex("Pokédex", CardwiseIcon.Home),
+    Trading("Trading", CardwiseIcon.Trade),
+    Collection("Sammlung", CardwiseIcon.Layers),
+    Friends("Freunde", CardwiseIcon.Users),
+    Profile("Profil", CardwiseIcon.User),
 }
 
 // Figma uses 82 % opacity + blur; without blur we use a higher opacity so it stays readable
@@ -45,12 +45,12 @@ private val NavShadow = Color(0x21364E78)
  * It overlaps the content, so screens need about 110 dp of bottom padding.
  */
 @Composable
-fun CardHubNavigationBar(
+fun CardwiseNavigationBar(
     selected: MainTab,
     onSelect: (MainTab) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val shape = CardHubTheme.shapes.sheet
+    val shape = CardwiseTheme.shapes.sheet
     Row(
         modifier = modifier
             .widthIn(max = 420.dp)
@@ -70,7 +70,7 @@ fun CardHubNavigationBar(
 
 @Composable
 private fun NavItem(tab: MainTab, selected: Boolean, onClick: () -> Unit, modifier: Modifier) {
-    val colors = CardHubTheme.colors
+    val colors = CardwiseTheme.colors
     val shape = RoundedCornerShape(21.dp)
     val container by animateColorAsState(if (selected) colors.blueSoft else Color.Transparent)
     val content by animateColorAsState(if (selected) colors.blue else colors.navInactive)
@@ -83,7 +83,7 @@ private fun NavItem(tab: MainTab, selected: Boolean, onClick: () -> Unit, modifi
         verticalArrangement = Arrangement.spacedBy(3.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        CardHubIconImage(tab.icon, tint = content, size = 20.dp)
-        Text(tab.label, style = CardHubTheme.typography.badge.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold), color = content)
+        CardwiseIconImage(tab.icon, tint = content, size = 20.dp)
+        Text(tab.label, style = CardwiseTheme.typography.badge.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold), color = content)
     }
 }

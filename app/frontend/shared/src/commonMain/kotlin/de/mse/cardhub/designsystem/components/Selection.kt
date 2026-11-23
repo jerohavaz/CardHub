@@ -31,19 +31,19 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import de.mse.cardhub.designsystem.theme.CardHubSpacing
-import de.mse.cardhub.designsystem.theme.CardHubTheme
+import de.mse.cardhub.designsystem.theme.CardwiseSpacing
+import de.mse.cardhub.designsystem.theme.CardwiseTheme
 
 /** Filter chip, e.g. for card types. */
 @Composable
-fun CardHubChip(
+fun CardwiseChip(
     text: String,
     selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val colors = CardHubTheme.colors
-    val shape = CardHubTheme.shapes.pill
+    val colors = CardwiseTheme.colors
+    val shape = CardwiseTheme.shapes.pill
     val container by animateColorAsState(if (selected) colors.blue else colors.surface)
     val border by animateColorAsState(if (selected) colors.blue else colors.line)
     Box(
@@ -58,7 +58,7 @@ fun CardHubChip(
     ) {
         Text(
             text = text,
-            style = CardHubTheme.typography.label.copy(fontWeight = FontWeight.SemiBold),
+            style = CardwiseTheme.typography.label.copy(fontWeight = FontWeight.SemiBold),
             color = if (selected) colors.surface else colors.muted,
         )
     }
@@ -71,7 +71,7 @@ fun ChipRow(
     selectedIndex: Int,
     onSelect: (Int) -> Unit,
     modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = PaddingValues(horizontal = CardHubSpacing.screenHorizontal),
+    contentPadding: PaddingValues = PaddingValues(horizontal = CardwiseSpacing.screenHorizontal),
 ) {
     LazyRow(
         modifier = modifier,
@@ -79,7 +79,7 @@ fun ChipRow(
         horizontalArrangement = Arrangement.spacedBy(7.dp),
     ) {
         itemsIndexed(options) { index, option ->
-            CardHubChip(option, selected = index == selectedIndex, onClick = { onSelect(index) })
+            CardwiseChip(option, selected = index == selectedIndex, onClick = { onSelect(index) })
         }
     }
 }
@@ -92,7 +92,7 @@ fun SegmentedControl(
     onSelect: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val colors = CardHubTheme.colors
+    val colors = CardwiseTheme.colors
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -103,7 +103,7 @@ fun SegmentedControl(
     ) {
         options.forEachIndexed { index, option ->
             val selected = index == selectedIndex
-            val shape = CardHubTheme.shapes.sm
+            val shape = CardwiseTheme.shapes.sm
             val container by animateColorAsState(if (selected) colors.surface else Color.Transparent)
             Box(
                 modifier = Modifier
@@ -117,7 +117,7 @@ fun SegmentedControl(
             ) {
                 Text(
                     text = option,
-                    style = if (selected) CardHubTheme.typography.captionStrong else CardHubTheme.typography.caption,
+                    style = if (selected) CardwiseTheme.typography.captionStrong else CardwiseTheme.typography.caption,
                     color = if (selected) colors.text else colors.muted,
                 )
             }
@@ -134,10 +134,10 @@ fun Stepper(
     min: Int = 1,
     max: Int = 99,
 ) {
-    val colors = CardHubTheme.colors
+    val colors = CardwiseTheme.colors
     Row(
         modifier = modifier
-            .background(colors.surface2, CardHubTheme.shapes.md)
+            .background(colors.surface2, CardwiseTheme.shapes.md)
             .padding(3.dp),
         horizontalArrangement = Arrangement.spacedBy(9.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -145,7 +145,7 @@ fun Stepper(
         StepperButton("−", enabled = value > min, contentDescription = "Anzahl verringern") { onValueChange(value - 1) }
         Text(
             text = value.toString(),
-            style = CardHubTheme.typography.button,
+            style = CardwiseTheme.typography.button,
             color = colors.text,
             modifier = Modifier.defaultMinSize(minWidth = 12.dp),
         )
@@ -155,7 +155,7 @@ fun Stepper(
 
 @Composable
 private fun StepperButton(symbol: String, enabled: Boolean, contentDescription: String, onClick: () -> Unit) {
-    val colors = CardHubTheme.colors
+    val colors = CardwiseTheme.colors
     Box(
         modifier = Modifier
             .size(28.dp)
@@ -166,22 +166,22 @@ private fun StepperButton(symbol: String, enabled: Boolean, contentDescription: 
     ) {
         Text(
             symbol,
-            style = CardHubTheme.typography.section,
+            style = CardwiseTheme.typography.section,
             color = if (enabled) colors.blue else colors.navInactive,
         )
     }
 }
 
-/** Switch in CardHub blue, e.g. for settings. */
+/** Switch in Cardwise blue, e.g. for settings. */
 @Composable
-fun CardHubSwitch(
+fun CardwiseSwitch(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     width: Dp = 40.dp,
     height: Dp = 24.dp,
 ) {
-    val colors = CardHubTheme.colors
+    val colors = CardwiseTheme.colors
     val track by animateColorAsState(if (checked) colors.blue else colors.line)
     val thumbSize = height - 6.dp
     val offset = if (checked) width - thumbSize - 3.dp else 3.dp

@@ -19,8 +19,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import de.mse.cardhub.designsystem.icons.CardHubIcon
-import de.mse.cardhub.designsystem.theme.CardHubTheme
+import de.mse.cardhub.designsystem.icons.CardwiseIcon
+import de.mse.cardhub.designsystem.theme.CardwiseTheme
 
 /**
  * Bottom sheet with handle, title, close button and content.
@@ -28,12 +28,12 @@ import de.mse.cardhub.designsystem.theme.CardHubTheme
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CardHubBottomSheet(
+fun CardwiseBottomSheet(
     title: String,
     onDismiss: () -> Unit,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    val colors = CardHubTheme.colors
+    val colors = CardwiseTheme.colors
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
@@ -50,8 +50,8 @@ fun CardHubBottomSheet(
     ) {
         Column(Modifier.fillMaxWidth().padding(horizontal = 21.dp).padding(bottom = 30.dp).navigationBarsPadding()) {
             Row(Modifier.fillMaxWidth().padding(top = 19.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text(title, style = CardHubTheme.typography.title, color = colors.text, modifier = Modifier.weight(1f))
-                CardHubIconButton(CardHubIcon.Close, onClick = onDismiss, contentDescription = "Schließen")
+                Text(title, style = CardwiseTheme.typography.title, color = colors.text, modifier = Modifier.weight(1f))
+                CardwiseIconButton(CardwiseIcon.Close, onClick = onDismiss, contentDescription = "Schließen")
             }
             content()
         }
@@ -69,16 +69,16 @@ fun ConfirmSheet(
     destructive: Boolean = true,
     cancelText: String = "Abbrechen",
 ) {
-    CardHubBottomSheet(title = title, onDismiss = onDismiss) {
+    CardwiseBottomSheet(title = title, onDismiss = onDismiss) {
         Text(
             message,
-            style = CardHubTheme.typography.caption,
-            color = CardHubTheme.colors.muted,
+            style = CardwiseTheme.typography.caption,
+            color = CardwiseTheme.colors.muted,
             modifier = Modifier.padding(top = 16.dp),
         )
         Row(Modifier.fillMaxWidth().padding(top = 18.dp), horizontalArrangement = Arrangement.spacedBy(9.dp)) {
-            CardHubButton(cancelText, onClick = onDismiss, variant = ButtonVariant.Neutral, modifier = Modifier.weight(1f))
-            CardHubButton(
+            CardwiseButton(cancelText, onClick = onDismiss, variant = ButtonVariant.Neutral, modifier = Modifier.weight(1f))
+            CardwiseButton(
                 confirmText,
                 onClick = onConfirm,
                 variant = if (destructive) ButtonVariant.Danger else ButtonVariant.Primary,

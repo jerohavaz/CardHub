@@ -7,22 +7,22 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
 
-private val LocalCardHubColors = staticCompositionLocalOf { LightCardHubColors }
-private val LocalCardHubTypography = staticCompositionLocalOf { DefaultCardHubTypography }
-private val LocalCardHubShapes = staticCompositionLocalOf { CardHubShapes() }
+private val LocalCardwiseColors = staticCompositionLocalOf { LightCardwiseColors }
+private val LocalCardwiseTypography = staticCompositionLocalOf { DefaultCardwiseTypography }
+private val LocalCardwiseShapes = staticCompositionLocalOf { CardwiseShapes() }
 
 /**
- * Entry point of the CardHub design system.
- * Our components read from [CardHubTheme]. MaterialTheme is only set so that
+ * Entry point of the Cardwise design system.
+ * Our components read from [CardwiseTheme]. MaterialTheme is only set so that
  * Material components (e.g. ModalBottomSheet) match our colors.
  */
 @Composable
-fun CardHubTheme(content: @Composable () -> Unit) {
-    val colors = LightCardHubColors
+fun CardwiseTheme(content: @Composable () -> Unit) {
+    val colors = LightCardwiseColors
     CompositionLocalProvider(
-        LocalCardHubColors provides colors,
-        LocalCardHubTypography provides DefaultCardHubTypography,
-        LocalCardHubShapes provides CardHubShapes(),
+        LocalCardwiseColors provides colors,
+        LocalCardwiseTypography provides DefaultCardwiseTypography,
+        LocalCardwiseShapes provides CardwiseShapes(),
     ) {
         MaterialTheme(
             colorScheme = lightColorScheme(
@@ -45,11 +45,11 @@ fun CardHubTheme(content: @Composable () -> Unit) {
     }
 }
 
-object CardHubTheme {
-    val colors: CardHubColors
-        @Composable @ReadOnlyComposable get() = LocalCardHubColors.current
-    val typography: CardHubTypography
-        @Composable @ReadOnlyComposable get() = LocalCardHubTypography.current
-    val shapes: CardHubShapes
-        @Composable @ReadOnlyComposable get() = LocalCardHubShapes.current
+object CardwiseTheme {
+    val colors: CardwiseColors
+        @Composable @ReadOnlyComposable get() = LocalCardwiseColors.current
+    val typography: CardwiseTypography
+        @Composable @ReadOnlyComposable get() = LocalCardwiseTypography.current
+    val shapes: CardwiseShapes
+        @Composable @ReadOnlyComposable get() = LocalCardwiseShapes.current
 }

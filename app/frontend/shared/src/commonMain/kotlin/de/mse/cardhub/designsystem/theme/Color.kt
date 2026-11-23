@@ -4,11 +4,11 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 
 /**
- * Color tokens from the Figma template "CARDHUB · Glacier".
+ * Color tokens from the Figma template "CARDWISE · Glacier".
  * The names match the CSS variables in the design (--screen, --surface, --text …).
  */
 @Immutable
-data class CardHubColors(
+data class CardwiseColors(
     val screen: Color,
     val surface: Color,
     val surface2: Color,
@@ -32,7 +32,7 @@ data class CardHubColors(
     val neutralSoft: Color,
 )
 
-val LightCardHubColors = CardHubColors(
+val LightCardwiseColors = CardwiseColors(
     screen = Color(0xFFF8FAFF),
     surface = Color(0xFFFFFFFF),
     surface2 = Color(0xFFEEF3FB),

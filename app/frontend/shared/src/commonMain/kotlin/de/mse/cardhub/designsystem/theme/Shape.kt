@@ -6,7 +6,7 @@ import androidx.compose.ui.unit.dp
 
 /** Corner radii from the Figma template. */
 @Immutable
-data class CardHubShapes(
+data class CardwiseShapes(
     /** Small badges in tiles, stepper buttons, plus button */
     val xs: RoundedCornerShape = RoundedCornerShape(7.dp),
     /** Inner tabs in the segmented control */
@@ -28,7 +28,7 @@ data class CardHubShapes(
 )
 
 /** Spacing – the design consistently uses a 20 dp horizontal margin. */
-object CardHubSpacing {
+object CardwiseSpacing {
     val screenHorizontal = 20.dp
     val xs = 4.dp
     val sm = 8.dp

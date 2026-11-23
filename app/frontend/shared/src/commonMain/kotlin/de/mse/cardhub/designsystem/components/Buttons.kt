@@ -25,9 +25,9 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import de.mse.cardhub.designsystem.icons.CardHubIcon
-import de.mse.cardhub.designsystem.icons.CardHubIconImage
-import de.mse.cardhub.designsystem.theme.CardHubTheme
+import de.mse.cardhub.designsystem.icons.CardwiseIcon
+import de.mse.cardhub.designsystem.icons.CardwiseIconImage
+import de.mse.cardhub.designsystem.theme.CardwiseTheme
 
 enum class ButtonVariant {
     /** Filled blue – main action */
@@ -45,22 +45,22 @@ enum class ButtonVariant {
 
 /** Default button (44 dp high). */
 @Composable
-fun CardHubButton(
+fun CardwiseButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     variant: ButtonVariant = ButtonVariant.Primary,
-    icon: CardHubIcon? = null,
+    icon: CardwiseIcon? = null,
     enabled: Boolean = true,
 ) {
-    val colors = CardHubTheme.colors
+    val colors = CardwiseTheme.colors
     val (container, content) = when (variant) {
         ButtonVariant.Primary -> colors.blue to colors.surface
         ButtonVariant.Soft -> colors.blueSoft to colors.blue
         ButtonVariant.Neutral -> colors.surface2 to colors.text
         ButtonVariant.Danger -> colors.dangerSoft to colors.danger
     }
-    val shape = CardHubTheme.shapes.lg
+    val shape = CardwiseTheme.shapes.lg
     Row(
         modifier = modifier
             .defaultMinSize(minHeight = 44.dp)
@@ -72,8 +72,8 @@ fun CardHubButton(
         horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        if (icon != null) CardHubIconImage(icon, tint = content, size = 16.dp)
-        Text(text, style = CardHubTheme.typography.button, color = content)
+        if (icon != null) CardwiseIconImage(icon, tint = content, size = 16.dp)
+        Text(text, style = CardwiseTheme.typography.button, color = content)
     }
 }
 
@@ -84,17 +84,17 @@ fun PillButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val colors = CardHubTheme.colors
+    val colors = CardwiseTheme.colors
     Box(
         modifier = modifier
             .height(31.dp)
-            .clip(CardHubTheme.shapes.pill)
+            .clip(CardwiseTheme.shapes.pill)
             .background(colors.text)
             .clickable(role = Role.Button, onClick = onClick)
             .padding(horizontal = 14.dp),
         contentAlignment = Alignment.Center,
     ) {
-        Text(text, style = CardHubTheme.typography.captionStrong, color = colors.screen)
+        Text(text, style = CardwiseTheme.typography.captionStrong, color = colors.screen)
     }
 }
 
@@ -108,17 +108,17 @@ enum class IconButtonVariant {
 
 /** Square or round icon button. */
 @Composable
-fun CardHubIconButton(
-    icon: CardHubIcon,
+fun CardwiseIconButton(
+    icon: CardwiseIcon,
     onClick: () -> Unit,
     contentDescription: String?,
     modifier: Modifier = Modifier,
     variant: IconButtonVariant = IconButtonVariant.Surface,
-    shape: Shape = CardHubTheme.shapes.lg,
+    shape: Shape = CardwiseTheme.shapes.lg,
     size: Dp = 39.dp,
     iconSize: Dp = 19.dp,
 ) {
-    val colors = CardHubTheme.colors
+    val colors = CardwiseTheme.colors
     val (container, tint, border) = when (variant) {
         IconButtonVariant.Surface -> Triple(colors.surface, colors.text, BorderStroke(1.dp, colors.line))
         IconButtonVariant.Soft -> Triple(colors.blueSoft, colors.blue, null)
@@ -133,18 +133,18 @@ fun CardHubIconButton(
             .clickable(role = Role.Button, onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
-        CardHubIconImage(icon, tint = tint, size = iconSize, contentDescription = contentDescription)
+        CardwiseIconImage(icon, tint = tint, size = iconSize, contentDescription = contentDescription)
     }
 }
 
 /** Round back button for the [BackHeader]. */
 @Composable
 fun CircleIconButton(
-    icon: CardHubIcon,
+    icon: CardwiseIcon,
     onClick: () -> Unit,
     contentDescription: String?,
     modifier: Modifier = Modifier,
-) = CardHubIconButton(
+) = CardwiseIconButton(
     icon = icon,
     onClick = onClick,
     contentDescription = contentDescription,
@@ -159,8 +159,8 @@ fun AddButton(
     onClick: () -> Unit,
     contentDescription: String?,
     modifier: Modifier = Modifier,
-) = CardHubIconButton(
-    icon = CardHubIcon.Plus,
+) = CardwiseIconButton(
+    icon = CardwiseIcon.Plus,
     onClick = onClick,
     contentDescription = contentDescription,
     modifier = modifier,

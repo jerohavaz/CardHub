@@ -7,12 +7,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import de.mse.cardhub.designsystem.theme.CardHubColors
-import de.mse.cardhub.designsystem.theme.CardHubTheme
+import de.mse.cardhub.designsystem.theme.CardwiseColors
+import de.mse.cardhub.designsystem.theme.CardwiseTheme
 
 enum class BadgeTone { Blue, Warning, Gold, Neutral, Success, Danger }
 
-private fun CardHubColors.badgeColors(tone: BadgeTone): Pair<Color, Color> = when (tone) {
+private fun CardwiseColors.badgeColors(tone: BadgeTone): Pair<Color, Color> = when (tone) {
     BadgeTone.Blue -> blueSoft to blue
     BadgeTone.Warning -> warningSoft to warning
     BadgeTone.Gold -> goldSoft to gold
@@ -23,18 +23,18 @@ private fun CardHubColors.badgeColors(tone: BadgeTone): Pair<Color, Color> = whe
 
 /** Pill-shaped badge, e.g. for rarity, prices or trade status. */
 @Composable
-fun CardHubBadge(
+fun CardwiseBadge(
     text: String,
     modifier: Modifier = Modifier,
     tone: BadgeTone = BadgeTone.Blue,
 ) {
-    val (container, content) = CardHubTheme.colors.badgeColors(tone)
+    val (container, content) = CardwiseTheme.colors.badgeColors(tone)
     Text(
         text = text,
-        style = CardHubTheme.typography.badge,
+        style = CardwiseTheme.typography.badge,
         color = content,
         modifier = modifier
-            .background(container, CardHubTheme.shapes.pill)
+            .background(container, CardwiseTheme.shapes.pill)
             .padding(horizontal = 8.dp, vertical = 5.dp),
     )
 }
@@ -53,13 +53,13 @@ fun RarityTag(
     rarity: Rarity,
     modifier: Modifier = Modifier,
 ) {
-    val (container, content) = CardHubTheme.colors.badgeColors(rarity.tone)
+    val (container, content) = CardwiseTheme.colors.badgeColors(rarity.tone)
     Text(
         text = rarity.label,
-        style = CardHubTheme.typography.badgeSmall,
+        style = CardwiseTheme.typography.badgeSmall,
         color = content,
         modifier = modifier
-            .background(container, CardHubTheme.shapes.xs)
+            .background(container, CardwiseTheme.shapes.xs)
             .padding(horizontal = 6.dp, vertical = 4.dp),
     )
 }

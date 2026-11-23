@@ -24,9 +24,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import de.mse.cardhub.designsystem.icons.CardHubIcon
-import de.mse.cardhub.designsystem.icons.CardHubIconImage
-import de.mse.cardhub.designsystem.theme.CardHubTheme
+import de.mse.cardhub.designsystem.icons.CardwiseIcon
+import de.mse.cardhub.designsystem.icons.CardwiseIconImage
+import de.mse.cardhub.designsystem.theme.CardwiseTheme
 
 /** White surface with border. Base for panels like the PricePanel. */
 @Composable
@@ -36,8 +36,8 @@ fun Panel(
     onClick: (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    val colors = CardHubTheme.colors
-    val shape = CardHubTheme.shapes.card
+    val colors = CardwiseTheme.colors
+    val shape = CardwiseTheme.shapes.card
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -58,11 +58,11 @@ fun InfoBanner(
 ) {
     Text(
         text = text,
-        style = CardHubTheme.typography.label.copy(lineHeight = CardHubTheme.typography.label.fontSize * 1.6),
-        color = CardHubTheme.colors.blue,
+        style = CardwiseTheme.typography.label.copy(lineHeight = CardwiseTheme.typography.label.fontSize * 1.6),
+        color = CardwiseTheme.colors.blue,
         modifier = modifier
             .fillMaxWidth()
-            .background(CardHubTheme.colors.blueSoft, CardHubTheme.shapes.lg)
+            .background(CardwiseTheme.colors.blueSoft, CardwiseTheme.shapes.lg)
             .padding(13.dp),
     )
 }
@@ -75,15 +75,15 @@ fun ValueRow(
     modifier: Modifier = Modifier,
     subtitle: String? = null,
 ) {
-    val colors = CardHubTheme.colors
+    val colors = CardwiseTheme.colors
     Row(modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(13.dp), verticalAlignment = Alignment.CenterVertically) {
         Column(Modifier.weight(1f)) {
-            Text(title, style = CardHubTheme.typography.bodyStrong, color = colors.text)
+            Text(title, style = CardwiseTheme.typography.bodyStrong, color = colors.text)
             if (subtitle != null) {
-                Text(subtitle, style = CardHubTheme.typography.label, color = colors.muted, modifier = Modifier.padding(top = 5.dp))
+                Text(subtitle, style = CardwiseTheme.typography.label, color = colors.muted, modifier = Modifier.padding(top = 5.dp))
             }
         }
-        Text(value, style = CardHubTheme.typography.section, color = colors.text)
+        Text(value, style = CardwiseTheme.typography.section, color = colors.text)
     }
 }
 
@@ -94,8 +94,8 @@ fun StatCard(
     label: String,
     modifier: Modifier = Modifier,
 ) {
-    val colors = CardHubTheme.colors
-    val shape = CardHubTheme.shapes.xl
+    val colors = CardwiseTheme.colors
+    val shape = CardwiseTheme.shapes.xl
     Column(
         modifier = modifier
             .background(colors.surface, shape)
@@ -103,8 +103,8 @@ fun StatCard(
             .padding(horizontal = 9.dp, vertical = 15.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(value, style = CardHubTheme.typography.titleSmall, color = colors.text, textAlign = TextAlign.Center)
-        Text(label, style = CardHubTheme.typography.caption, color = colors.muted, textAlign = TextAlign.Center, modifier = Modifier.padding(top = 5.dp))
+        Text(value, style = CardwiseTheme.typography.titleSmall, color = colors.text, textAlign = TextAlign.Center)
+        Text(label, style = CardwiseTheme.typography.caption, color = colors.muted, textAlign = TextAlign.Center, modifier = Modifier.padding(top = 5.dp))
     }
 }
 
@@ -128,7 +128,7 @@ fun Avatar(
     gradient: List<Color> = AvatarGradients.Peach,
     online: Boolean = false,
 ) {
-    val colors = CardHubTheme.colors
+    val colors = CardwiseTheme.colors
     Box(modifier.size(size)) {
         Box(
             modifier = Modifier
@@ -140,7 +140,7 @@ fun Avatar(
         ) {
             Text(
                 initials,
-                style = if (size >= 60.dp) CardHubTheme.typography.title else CardHubTheme.typography.labelStrong,
+                style = if (size >= 60.dp) CardwiseTheme.typography.title else CardwiseTheme.typography.labelStrong,
                 color = colors.surface,
             )
         }
@@ -172,12 +172,12 @@ fun PersonRow(
     modifier: Modifier = Modifier,
     trailing: (@Composable () -> Unit)? = null,
 ) {
-    val colors = CardHubTheme.colors
+    val colors = CardwiseTheme.colors
     Row(modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
         avatar()
         Column(Modifier.weight(1f)) {
-            Text(name, style = CardHubTheme.typography.labelStrong, color = colors.text)
-            Text(subtitle, style = CardHubTheme.typography.caption, color = colors.muted, modifier = Modifier.padding(top = 4.dp))
+            Text(name, style = CardwiseTheme.typography.labelStrong, color = colors.text)
+            Text(subtitle, style = CardwiseTheme.typography.caption, color = colors.muted, modifier = Modifier.padding(top = 4.dp))
         }
         trailing?.invoke()
     }
@@ -189,8 +189,8 @@ fun SettingsGroup(
     modifier: Modifier = Modifier,
     content: @Composable SettingsGroupScope.() -> Unit,
 ) {
-    val colors = CardHubTheme.colors
-    val shape = CardHubTheme.shapes.xl
+    val colors = CardwiseTheme.colors
+    val shape = CardwiseTheme.shapes.xl
     Column(
         modifier
             .fillMaxWidth()
@@ -205,15 +205,15 @@ fun SettingsGroup(
 class SettingsGroupScope internal constructor(private val column: ColumnScope) {
     private var first = true
 
-    /** A single row. Use [trailing] to show e.g. a [CardHubSwitch] instead of the arrow. */
+    /** A single row. Use [trailing] to show e.g. a [CardwiseSwitch] instead of the arrow. */
     @Composable
     fun SettingsRow(
         title: String,
-        icon: CardHubIcon,
+        icon: CardwiseIcon,
         onClick: (() -> Unit)? = null,
         trailing: (@Composable () -> Unit)? = null,
     ) {
-        val colors = CardHubTheme.colors
+        val colors = CardwiseTheme.colors
         if (!first) HorizontalDivider(color = colors.line, thickness = 1.dp)
         first = false
         Row(
@@ -225,10 +225,10 @@ class SettingsGroupScope internal constructor(private val column: ColumnScope) {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(Modifier.size(28.dp), contentAlignment = Alignment.CenterStart) {
-                CardHubIconImage(icon, tint = colors.blue, size = 18.dp)
+                CardwiseIconImage(icon, tint = colors.blue, size = 18.dp)
             }
-            Text(title, style = CardHubTheme.typography.labelStrong, color = colors.text, modifier = Modifier.weight(1f))
-            if (trailing != null) trailing() else CardHubIconImage(CardHubIcon.ChevronRight, tint = colors.muted, size = 16.dp)
+            Text(title, style = CardwiseTheme.typography.labelStrong, color = colors.text, modifier = Modifier.weight(1f))
+            if (trailing != null) trailing() else CardwiseIconImage(CardwiseIcon.ChevronRight, tint = colors.muted, size = 16.dp)
         }
     }
 }
@@ -236,23 +236,23 @@ class SettingsGroupScope internal constructor(private val column: ColumnScope) {
 /** Empty state, e.g. when a list has no items. */
 @Composable
 fun EmptyState(
-    icon: CardHubIcon,
+    icon: CardwiseIcon,
     title: String,
     message: String,
     modifier: Modifier = Modifier,
     action: (@Composable () -> Unit)? = null,
 ) {
-    val colors = CardHubTheme.colors
+    val colors = CardwiseTheme.colors
     Column(
         modifier = modifier.fillMaxWidth().padding(vertical = 36.dp, horizontal = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        Box(Modifier.size(48.dp).background(colors.blueSoft, CardHubTheme.shapes.lg), contentAlignment = Alignment.Center) {
-            CardHubIconImage(icon, tint = colors.blue, size = 22.dp)
+        Box(Modifier.size(48.dp).background(colors.blueSoft, CardwiseTheme.shapes.lg), contentAlignment = Alignment.Center) {
+            CardwiseIconImage(icon, tint = colors.blue, size = 22.dp)
         }
-        Text(title, style = CardHubTheme.typography.section, color = colors.text, textAlign = TextAlign.Center, modifier = Modifier.padding(top = 6.dp))
-        Text(message, style = CardHubTheme.typography.label, color = colors.muted, textAlign = TextAlign.Center)
+        Text(title, style = CardwiseTheme.typography.section, color = colors.text, textAlign = TextAlign.Center, modifier = Modifier.padding(top = 6.dp))
+        Text(message, style = CardwiseTheme.typography.label, color = colors.muted, textAlign = TextAlign.Center)
         if (action != null) Box(Modifier.padding(top = 8.dp)) { action() }
     }
 }
@@ -263,7 +263,7 @@ fun BoxScope.StickyActionBar(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
-    val screen = CardHubTheme.colors.screen
+    val screen = CardwiseTheme.colors.screen
     Box(
         modifier = modifier
             .align(Alignment.BottomCenter)
