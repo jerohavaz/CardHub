@@ -19,7 +19,7 @@ kotlin {
     }
     
     android {
-       namespace = "de.mse.cardhub.shared"
+       namespace = "cardwise.shared"
        compileSdk = libs.versions.android.compileSdk.get().toInt()
        minSdk = libs.versions.android.minSdk.get().toInt()
     
@@ -53,6 +53,7 @@ kotlin {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
+            implementation(libs.vico.multiplatform)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
