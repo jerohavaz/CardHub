@@ -20,7 +20,7 @@ dependencies {
 }
 
 android {
-    namespace = "de.mse.cardhub"
+    namespace = "cardwise"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {

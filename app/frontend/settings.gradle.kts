@@ -1,4 +1,4 @@
-rootProject.name = "CardHub"
+rootProject.name = "Cardwise"
 
 pluginManagement {
     repositories {

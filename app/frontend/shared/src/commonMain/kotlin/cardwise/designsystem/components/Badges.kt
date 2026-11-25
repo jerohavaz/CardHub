@@ -1,0 +1,65 @@
+package cardwise.designsystem.components
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import cardwise.designsystem.theme.CardwiseColors
+import cardwise.designsystem.theme.CardwiseTheme
+
+enum class BadgeTone { Blue, Warning, Gold, Neutral, Success, Danger }
+
+private fun CardwiseColors.badgeColors(tone: BadgeTone): Pair<Color, Color> = when (tone) {
+    BadgeTone.Blue -> blueSoft to blue
+    BadgeTone.Warning -> warningSoft to warning
+    BadgeTone.Gold -> goldSoft to gold
+    BadgeTone.Neutral -> neutralSoft to muted
+    BadgeTone.Success -> Color(0xFFE3F6EE) to success
+    BadgeTone.Danger -> dangerSoft to danger
+}
+
+/** Pill-shaped badge, e.g. for rarity, prices or trade status. */
+@Composable
+fun CardwiseBadge(
+    text: String,
+    modifier: Modifier = Modifier,
+    tone: BadgeTone = BadgeTone.Blue,
+) {
+    val (container, content) = CardwiseTheme.colors.badgeColors(tone)
+    Text(
+        text = text,
+        style = CardwiseTheme.typography.badge,
+        color = content,
+        modifier = modifier
+            .background(container, CardwiseTheme.shapes.pill)
+            .padding(horizontal = 8.dp, vertical = 5.dp),
+    )
+}
+
+/** Card rarity. Labels match the texts in the design. */
+enum class Rarity(val label: String, val tone: BadgeTone) {
+    Common("Häufig", BadgeTone.Neutral),
+    Rare("Selten", BadgeTone.Gold),
+    Ultra("Ultra", BadgeTone.Gold),
+    Legendary("Legendär", BadgeTone.Gold),
+}
+
+/** Small rarity badge for card tiles. */
+@Composable
+fun RarityTag(
+    rarity: Rarity,
+    modifier: Modifier = Modifier,
+) {
+    val (container, content) = CardwiseTheme.colors.badgeColors(rarity.tone)
+    Text(
+        text = rarity.label,
+        style = CardwiseTheme.typography.badgeSmall,
+        color = content,
+        modifier = modifier
+            .background(container, CardwiseTheme.shapes.xs)
+            .padding(horizontal = 6.dp, vertical = 4.dp),
+    )
+}
